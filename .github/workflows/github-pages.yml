@@ -62,7 +62,6 @@ jobs:
       INGEST_URL_ARKHAMDB_DECKLISTS: https://example.invalid
       LEGACY_API_BASE_URL: https://example.invalid
       METADATA_LOCALES: en
-      NODE_ENV: production
       PORT: "3000"
       POSTGRES_DB: arkham_build
       POSTGRES_HOST: localhost
@@ -113,6 +112,9 @@ jobs:
 
       - name: Export card data
         working-directory: backend
+        env:
+          # Only here: set for the whole job, `npm ci` would skip dev dependencies like Vite.
+          NODE_ENV: production
         run: |
           node --experimental-strip-types src/main.ts > ../api.log 2>&1 &
           for _ in $(seq 1 60); do

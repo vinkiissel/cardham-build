@@ -1,3 +1,4 @@
+import { withBasePath } from "@/utils/base-path";
 import { parseCardTextHtml } from "@/utils/card-utils";
 import { parseMarkdown } from "@/utils/markdown";
 
@@ -42,7 +43,7 @@ function resolveGrimoireIconClasses(doc: Document) {
 function resolveGrimoireImageSource(src: string) {
   const normalizedPath = normalizeGrimoireImagePath(src);
 
-  return `${GRIMOIRE_ASSET_BASE_PATH}/${normalizedPath}`;
+  return withBasePath(`${GRIMOIRE_ASSET_BASE_PATH}/${normalizedPath}`);
 }
 
 function isRelativeGrimoireImageSource(src: string) {

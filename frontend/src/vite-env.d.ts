@@ -1,6 +1,8 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
+  readonly VITE_ACCOUNTS_ENABLED?: string;
+  readonly VITE_STATIC_API?: string;
   readonly VITE_PAGE_NAME: string;
   readonly VITE_ADMIN_EMAIL: string;
   readonly VITE_LEGAL_NOTICE: string;

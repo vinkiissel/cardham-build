@@ -1,3 +1,4 @@
+import { STATIC_API } from "@/utils/constants";
 import { ACCOUNT_PERMISSIONS, type Card as CardT } from "@arkham-build/shared";
 import {
   ArrowDownIcon,
@@ -264,6 +265,7 @@ export function CardModal(props: Props) {
       {!cardWithRelations.card.preview &&
         !ctx.resolvedDeck &&
         settings.showCardModalPopularDecks &&
+        !STATIC_API &&
         cardWithRelations.card.official && (
           <div className={css["related"]}>
             <PopularDecks scope={cardWithRelations.card} />

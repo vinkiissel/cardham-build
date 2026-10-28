@@ -19,6 +19,7 @@ import { useStore } from "@/store";
 import { selectSession } from "@/store/selectors/auth";
 import { selectAccountSyncStatus } from "@/store/selectors/sync";
 import type { SyncStatus } from "@/store/slices/sync.types";
+import { ACCOUNTS_ENABLED, STATIC_API } from "@/utils/constants";
 import { cx } from "@/utils/cx";
 import {
   createAuthRedirectPath,
@@ -82,7 +83,7 @@ export function Masthead(props: Props) {
         {slotRight}
         {!isAuthPage && (
           <>
-            {!session && (
+            {ACCOUNTS_ENABLED && !session && (
               <Link
                 asChild
                 href={createAuthRedirectPath(
@@ -141,16 +142,18 @@ function MastheadNav(props: { location: string; navSlot?: React.ReactNode }) {
         <MapIcon />
         {t("content.title")}
       </NavLink>
-      <NavLink
-        className={css["nav-link"]}
-        href="~/decklists"
-        location={location}
-        section="decklists"
-        testId="masthead-deck-guides"
-      >
-        <BookTextIcon />
-        {t("decklists.browse.title")}
-      </NavLink>
+      {!STATIC_API && (
+        <NavLink
+          className={css["nav-link"]}
+          href="~/decklists"
+          location={location}
+          section="decklists"
+          testId="masthead-deck-guides"
+        >
+          <BookTextIcon />
+          {t("decklists.browse.title")}
+        </NavLink>
+      )}
       <NavLink
         className={css["nav-link"]}
         href="~/rules"
@@ -302,15 +305,17 @@ function AccountMenu(props: { collapseNav: boolean; location: string }) {
               <MapIcon />
               {t("content.title")}
             </NavDropdownLink>
-            <NavDropdownLink
-              href="~/decklists"
-              location={location}
-              section="decklists"
-              testId="masthead-deck-guides"
-            >
-              <BookTextIcon />
-              {t("decklists.browse.title")}
-            </NavDropdownLink>
+            {!STATIC_API && (
+              <NavDropdownLink
+                href="~/decklists"
+                location={location}
+                section="decklists"
+                testId="masthead-deck-guides"
+              >
+                <BookTextIcon />
+                {t("decklists.browse.title")}
+              </NavDropdownLink>
+            )}
             <NavDropdownLink
               href="~/rules"
               location={location}

@@ -38,14 +38,22 @@ Cards used by other built decks stay visible and usable everywhere, but get a ba
 
 Hover the badge to see which built decks use the card. The card detail window lists the same decks with links.
 
+## Sharing decks
+
+On a deck's page, **Copy build code** and **Copy link** share the deck without an account. Opening the link, or pasting the code into **Import deck** next to the deck list, imports a copy in any browser. Shared decks always start as unbuilt.
+
 ## Where the data lives
 
-- **Built flag** – stored in the deck's `meta` field (`"built": "true"`), so it is kept in backups and synced with your account.
-- **Single cards** – stored in the `proxies` setting and synced with your account settings.
+- **Built flag** – stored in the deck's `meta` field (`"built": "true"`), so it is kept in backups.
+- **Single cards** – stored in the `proxies` setting.
+
+Both are stored in the browser. On instances with accounts, they are also synced with the account.
 
 ## Code
 
 - `frontend/src/store/lib/card-usage.ts` – which deck slots use physical copies, usage per card.
 - `frontend/src/store/lib/card-ownership.ts` – owned copies, including single cards and reprints (`cardPoolCodes`).
 - `frontend/src/store/selectors/card-usage.ts` – availability per card for the UI.
-- `frontend/src/components/deck-summary/built-toggle.tsx`, `frontend/src/components/card-usage-indicator.tsx`, `frontend/src/pages/settings/proxies.tsx` – UI.
+- `frontend/src/store/lib/deck-code.ts` – build codes.
+- `frontend/src/components/deck-summary/built-toggle.tsx`, `frontend/src/components/card-usage-indicator.tsx`, `frontend/src/pages/settings/proxies.tsx`, `frontend/src/components/deck-display/deck-build-code.tsx`, `frontend/src/pages/deck-code-import/deck-code-import.tsx` – UI.
+- `frontend/src/utils/base-path.ts` – serving the app from a sub-folder (GitHub Pages).

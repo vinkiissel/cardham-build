@@ -1,3 +1,4 @@
+import { withBasePath } from "@/utils/base-path";
 import { cx } from "@/utils/cx";
 import { useResolvedColorTheme } from "@/utils/use-color-theme";
 import css from "./error-display.module.css";
@@ -30,7 +31,7 @@ export function ErrorImage({ className }: { className?: string }) {
   return (
     <img
       className={cx(className, css["error-image"])}
-      src={theme === "dark" ? "/404-dark.png" : "/404-light.png"}
+      src={withBasePath(theme === "dark" ? "/404-dark.png" : "/404-light.png")}
       alt="Stylized illustration of the False Lead card"
     />
   );

@@ -43,6 +43,7 @@ import { DeckInvestigatorModal } from "../deck-investigator/deck-investigator-mo
 import { SuziStandaloneSetup } from "../suzi-standalone-setup/suzi-standalone-setup";
 import { CopyToClipboard } from "../ui/copy-to-clipboard";
 import { HotkeyTooltip } from "../ui/hotkey";
+import { DeckBuildCode } from "./deck-build-code";
 import type { DeckDisplayType } from "./deck-display";
 import { LatestUpgrade } from "./deck-history/latest-upgrade";
 import {
@@ -564,6 +565,7 @@ function Sharing(props: { deck: ResolvedDeck; type: DeckDisplayType }) {
             )}
           </div>
         )}
+        <DeckBuildCode deck={deck.originalDeck} />
       </DeckDetail>
     </section>
   );

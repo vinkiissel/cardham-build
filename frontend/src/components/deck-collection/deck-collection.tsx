@@ -33,7 +33,7 @@ import {
 import { useStore } from "@/store";
 import type { DeckSummary as DeckSummaryType } from "@/store/lib/types";
 import { selectDecksDisplayList } from "@/store/selectors/deck-collection";
-import { ARKHAMDB_WARNING_VISIBLE } from "@/utils/constants";
+import { ACCOUNTS_ENABLED, ARKHAMDB_WARNING_VISIBLE } from "@/utils/constants";
 import {
   createAuthRedirectPath,
   getCurrentLocalPath,
@@ -273,15 +273,17 @@ export function DeckCollection() {
                     {t("deck.actions.create")}
                   </Button>
                 </Link>
-                <Link
-                  asChild
-                  href={createAuthRedirectPath(
-                    "/auth/login",
-                    getCurrentLocalPath(),
-                  )}
-                >
-                  <Button variant="bare">{t("auth.login.action")}</Button>
-                </Link>
+                {ACCOUNTS_ENABLED && (
+                  <Link
+                    asChild
+                    href={createAuthRedirectPath(
+                      "/auth/login",
+                      getCurrentLocalPath(),
+                    )}
+                  >
+                    <Button variant="bare">{t("auth.login.action")}</Button>
+                  </Link>
+                )}
               </nav>
             </figcaption>
           </figure>

@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# Saves the public read-only API responses the frontend needs as static files,
+# so the frontend can be hosted without a backend (e.g. on GitHub Pages).
+#
+# Usage: bin/export-static-card-data <api-url> <output-dir> [locales]
+# Example: bin/export-static-card-data http://localhost:3000 frontend/dist/api en,de
+set -euo pipefail
+
+api_url="${1:?api url required}"
+output_dir="${2:?output directory required}"
+locales="${3:-en}"
+
+fetch() {
+  local path="$1"
+  mkdir -p "$(dirname "${output_dir}${path}")"
+  curl --fail --silent --show-error --retry 2 \
+    "${api_url}${path}" --output "${output_dir}${path}"
+}
+export -f fetch
+export api_url output_dir
+
+for locale in ${locales//,/ }; do
+  for resource in version metadata cards; do
+    fetch "/v1/cache/${resource}/${locale}"
+  done
+done
+
+# Rules reference (chapter 2), FAQ and errata.
+fetch "/v2/public/grimoire"
+
+node -e '
+  const fs = require("node:fs");
+  const cards = JSON.parse(fs.readFileSync(process.argv[1], "utf8")).data.all_card;
+  for (const card of cards) {
+    console.log(`/v2/public/faq/card/${card.code}`);
+    console.log(`/v2/public/errata/card/${card.code}`);
+  }
+' "$(realpath "${output_dir}/v1/cache/cards/en")" |
+  xargs -P 16 -I {} bash -c 'fetch "$@"' _ {}
+
+echo "Exported $(find "${output_dir}" -type f | wc -l) files ($(du -sh "${output_dir}" | cut -f1))."

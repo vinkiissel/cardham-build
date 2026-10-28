@@ -1,0 +1,43 @@
+.indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.125em;
+  margin-left: 0.25em;
+  padding: 0 0.25em;
+  border-radius: var(--rounded);
+  background: var(--palette-2);
+  color: var(--text);
+  font-size: 0.8em;
+  font-weight: 700;
+  line-height: 1.4;
+  white-space: nowrap;
+  vertical-align: middle;
+
+  & svg {
+    display: inline-block;
+    width: 0.9em;
+    height: 0.9em;
+  }
+}
+
+.overcommitted {
+  background: var(--color-warning);
+  color: var(--color-warning-contrast);
+}
+
+.tooltip {
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 0.25rem;
+  text-align: left;
+
+  & ul {
+    margin: 0;
+    padding-left: 1rem;
+  }
+}
+
+.tooltip-warning {
+  color: var(--color-warning);
+  font-weight: 700;
+}

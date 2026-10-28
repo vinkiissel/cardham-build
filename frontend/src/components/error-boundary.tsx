@@ -1,3 +1,4 @@
+import { withBasePath } from "@/utils/base-path";
 import type { ErrorInfo } from "react";
 import { Component } from "react";
 import { Translation } from "react-i18next";
@@ -66,7 +67,7 @@ export class ErrorBoundary extends Component<Props, State> {
                     <Button as="a" href={ISSUE_URL}>
                       {t("errors.report")}
                     </Button>
-                    <Button as="a" href="/" variant="bare">
+                    <Button as="a" href={withBasePath("/")} variant="bare">
                       {t("errors.home")}
                     </Button>
                   </nav>

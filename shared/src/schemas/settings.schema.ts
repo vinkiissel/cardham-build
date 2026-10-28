@@ -94,6 +94,8 @@ export const SettingsSchema = z.object({
     deckScans: DecklistConfigSchema,
   }),
   locale: z.string(),
+  // Single cards added to the collection outside of packs, e.g. proxies. Keyed by card code.
+  proxies: z.record(z.string(), z.number().int().min(0)).optional(),
   notesEditor: z.object({
     defaultFormat: z.enum([
       "paragraph",

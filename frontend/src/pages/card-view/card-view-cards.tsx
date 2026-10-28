@@ -1,3 +1,4 @@
+import { STATIC_API } from "@/utils/constants";
 import type { Card as CardType, Pack } from "@arkham-build/shared";
 import { ChevronsLeftIcon, ChevronsRightIcon } from "lucide-react";
 import { Link, useSearchParams } from "wouter";
@@ -218,9 +219,11 @@ export function CardViewCards({
         <CardScenarios card={cardWithRelations.card} />
       )}
 
-      {official(cardWithRelations.card) && !cardWithRelations.card.preview && (
-        <PopularDecks scope={cardWithRelations.card} />
-      )}
+      {!STATIC_API &&
+        official(cardWithRelations.card) &&
+        !cardWithRelations.card.preview && (
+          <PopularDecks scope={cardWithRelations.card} />
+        )}
 
       {!isEmpty(related) &&
         related.map(([key, value]) => {

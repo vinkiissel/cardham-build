@@ -1,5 +1,6 @@
 import type { CompleteProfileResponse } from "@arkham-build/shared";
 import type { StateCreator } from "zustand";
+import { ACCOUNTS_ENABLED } from "@/utils/constants";
 import {
   canonicalizeCardTagsState,
   getEmptyCardTagsState,
@@ -179,6 +180,12 @@ export const createAuthSlice: StateCreator<StoreState, [], [], AuthSlice> = (
   },
 
   async initSession(client) {
+    if (!ACCOUNTS_ENABLED) {
+      set({ auth: { session: null, status: "unauthenticated" } });
+      setSessionInitialized(set, true);
+      return;
+    }
+
     setSessionInitialized(set, false);
     set((state) => ({
       auth: { ...state.auth, status: "loading" },

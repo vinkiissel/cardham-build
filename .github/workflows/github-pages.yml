@@ -1,0 +1,142 @@
+name: "[Fork] Deploy to GitHub Pages"
+
+# Builds a static site without accounts. Card data is imported into a temporary
+# database, exported as static files and published alongside the frontend.
+# See docs/github-pages.md.
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    # Weekly, to pick up new cards from the card data repositories.
+    - cron: "23 5 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build
+    # Only run on forks that publish to GitHub Pages.
+    if: github.repository != 'fspoettel/arkham.build'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_DB: arkham_build
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      # Backend configuration for the card data import. Services that are not
+      # used by the import get placeholder values.
+      ADMIN_API_KEY: unused
+      ARKHAMDB_BASE_URL: https://arkhamdb.com
+      ARKHAMDB_OAUTH_CLIENT_ID: unused
+      ARKHAMDB_OAUTH_CLIENT_SECRET: unused
+      ARKHAMDB_OAUTH_REDIRECT_URI: https://example.invalid/auth/callback
+      CORS_ORIGINS: http://localhost
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/arkham_build?sslmode=disable
+      DBMATE_MIGRATIONS_DIR: src/db/migrations
+      DBMATE_SCHEMA_FILE: src/db/schema.sql
+      ENABLE_JOB_SCHEDULES: "false"
+      FROM_EMAIL: noreply@example.invalid
+      FRONTEND_URL: http://localhost
+      INGEST_JSON_DATA_REPO: Kamalisk/arkhamdb-json-data@master
+      INGEST_METADATA_REPO: arkham-build/arkhamlcg-metadata@main
+      INGEST_TABOO_DATA_REPO: fspoettel/arkham-cards-data@master
+      INGEST_URL_ARKHAMDB_DECKLISTS: https://example.invalid
+      LEGACY_API_BASE_URL: https://example.invalid
+      METADATA_LOCALES: en
+      NODE_ENV: production
+      PORT: "3000"
+      POSTGRES_DB: arkham_build
+      POSTGRES_HOST: localhost
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_USER: postgres
+      SCANS_ACCESS_KEY_ID: unused
+      SCANS_BUCKET: unused
+      SCANS_ENDPOINT: https://example.invalid
+      SCANS_SECRET_ACCESS_KEY: unused
+      SESSION_SECRET: ${{ github.run_id }}-static-build-not-used-for-sessions
+      SMTP_HOST: localhost
+      SMTP_PASS: unused
+      SMTP_USER: unused
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          cache: "npm"
+          node-version-file: "package.json"
+      - run: npm ci
+
+      - name: Import card data
+        working-directory: backend
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npx dbmate --no-dump-schema up
+          node --experimental-strip-types src/scripts/ingest/index.ts
+
+      - name: Build frontend
+        env:
+          VITE_ACCOUNTS_ENABLED: "false"
+          VITE_STATIC_API: "true"
+          VITE_BASE_PATH: /${{ github.event.repository.name }}/
+          VITE_API_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/api
+          VITE_ARKHAMDB_BASE_URL: https://arkhamdb.com
+          VITE_CARD_IMAGE_URL: https://cdn.arkham.build
+          VITE_PAGE_NAME: ${{ vars.PAGE_NAME || 'Arkham Deck Builder' }}
+          VITE_LEGAL_NOTICE: ${{ vars.LEGAL_NOTICE || 'A private, non-commercial instance of arkham.build.' }}
+          VITE_PDFJS_VIEWER_URL: https://guides.arkham.build/pdfjs-6.3.289-dist/web/viewer.html
+          VITE_SHOW_PREVIEW_BANNER: "false"
+        run: |
+          npm run build --workspace frontend
+          # GitHub Pages serves 404.html for unknown paths, which lets the app handle its own routes.
+          cp frontend/dist/index.html frontend/dist/404.html
+          touch frontend/dist/.nojekyll
+
+      - name: Export card data
+        working-directory: backend
+        run: |
+          node --experimental-strip-types src/main.ts > ../api.log 2>&1 &
+          for _ in $(seq 1 60); do
+            curl --silent --fail http://localhost:3000/admin/up > /dev/null && break
+            sleep 1
+          done
+          ../bin/export-static-card-data http://localhost:3000 ../frontend/dist/api en
+
+      - name: Show API log
+        if: failure()
+        run: cat api.log || true
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: frontend/dist
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

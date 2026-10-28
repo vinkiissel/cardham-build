@@ -1,3 +1,4 @@
+import { withBasePath } from "@/utils/base-path";
 import type { Card } from "@arkham-build/shared";
 import { ExternalLinkIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -22,7 +23,7 @@ export function CardPageLink(props: Props) {
   }
 
   return (
-    <Button as="a" href={`/card/${card.code}`} target="_blank">
+    <Button as="a" href={withBasePath(`/card/${card.code}`)} target="_blank">
       <ExternalLinkIcon />
       {t("card_modal.actions.open_card_page")}
     </Button>

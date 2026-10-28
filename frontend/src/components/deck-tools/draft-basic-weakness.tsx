@@ -1,3 +1,4 @@
+import { withBasePath } from "@/utils/base-path";
 import { type Card, type Slots } from "@arkham-build/shared";
 import {
   DicesIcon,
@@ -243,7 +244,7 @@ function WeaknessCard(props: WeaknessCardProps) {
         {...referenceProps}
         ref={setReference}
         as="a"
-        href={`/card/${card.code}`}
+        href={withBasePath(`/card/${card.code}`)}
         target="_blank"
         rel="noopener noreferrer"
         variant="link"

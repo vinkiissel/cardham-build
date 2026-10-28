@@ -40,6 +40,19 @@ export const FLOATING_PORTAL_ID = "floating";
 
 export const ARKHAMDB_WARNING_VISIBLE = false;
 
+/**
+ * Accounts (login, sync, ArkhamDB connection) can be turned off for private instances.
+ * Decks are then stored in the browser and shared with build codes.
+ */
+export const ACCOUNTS_ENABLED =
+  import.meta.env.VITE_ACCOUNTS_ENABLED !== "false";
+
+/**
+ * The API is a static export of the card data (see `bin/export-static-card-data`),
+ * e.g. on GitHub Pages. Features that need a live backend are hidden.
+ */
+export const STATIC_API = import.meta.env.VITE_STATIC_API === "true";
+
 export const ISSUE_URL =
   "https://github.com/fspoettel/arkham.build/issues/new/choose";
 

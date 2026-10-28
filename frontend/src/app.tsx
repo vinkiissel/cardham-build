@@ -9,7 +9,6 @@ import {
   useLocation,
   useSearch,
 } from "wouter";
-import { useBrowserLocation } from "wouter/use-browser-location";
 import { ErrorBoundary } from "./components/error-boundary";
 import { KeyboardShortcutsModal } from "./components/keyboard-shortcuts/keyboard-shortcuts-modal";
 import { Loader } from "./components/ui/loader";
@@ -21,6 +20,7 @@ import {
   useRefreshMetadataMutation,
 } from "./queries/cache";
 import { useStore } from "./store";
+import { DECK_CODE_IMPORT_PATH } from "./store/lib/deck-code";
 import { selectSession } from "./store/selectors/auth";
 import { selectIsInitialized } from "./store/selectors/shared";
 import type { HttpClient } from "./store/services/http-client";
@@ -31,9 +31,10 @@ import {
   getCurrentLocalPath,
   getLocalReturnPath,
 } from "./utils/navigation-returns";
+import { useBasePathLocation } from "./utils/base-path";
 import { useColorThemeListener } from "./utils/use-color-theme";
 
-const browserLocationHook = useBrowserLocation;
+const browserLocationHook = useBasePathLocation;
 
 const Index = lazy(() => import("./pages/index"));
 
@@ -101,6 +102,9 @@ const Investigator2026Reveal = lazy(
 
 const FanMadeContentPreview = lazy(
   () => import("./pages/fan-made-content-preview/fan-made-content-preview"),
+);
+const DeckCodeImport = lazy(
+  () => import("./pages/deck-code-import/deck-code-import"),
 );
 const Login = lazy(() => import("./pages/auth/login"));
 const Signup = lazy(() => import("./pages/auth/signup"));
@@ -194,6 +198,10 @@ function AppInner() {
                   <Route component={Terms} path="/terms" />
                   <Route component={LegalNotice} path="/legal-notice" />
                   <Route component={Share} path="/share/:id" />
+                  <Route
+                    component={DeckCodeImport}
+                    path={DECK_CODE_IMPORT_PATH}
+                  />
                   <Route component={CollectionStats} path="/collection-stats" />
                   <Route component={BrowseDecklists} path="/decklists" />
                   <Route component={Rules} path="/rules" />

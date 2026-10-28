@@ -4,7 +4,48 @@ import { makeTestDeck } from "@/test/factories";
 import { getMockStore } from "@/test/get-mock-store";
 import { ARCHIVE_FOLDER_ID } from "@/utils/constants";
 
+function withoutSections(result: ReturnType<typeof selectDecksDisplayList>) {
+  return {
+    ...result,
+    entries: result.entries.filter((entry) => entry.type !== "section"),
+  };
+}
+
 describe("selectDecksDisplayList", () => {
+  it("lists built decks before unbuilt decks", async () => {
+    const store = await getMockStore();
+
+    store.setState({
+      data: {
+        ...store.getState().data,
+        decks: {
+          unbuilt: makeTestDeck({ id: "unbuilt" }),
+          built: makeTestDeck({
+            id: "built",
+            meta: JSON.stringify({ built: "true" }),
+          }),
+        },
+        history: {
+          unbuilt: [],
+          built: [],
+        },
+        folders: {},
+        deckFolders: {},
+      },
+    });
+
+    const result = selectDecksDisplayList(store.getState());
+
+    expect(
+      result.entries.map((entry) =>
+        entry.type === "deck" ? entry.deck.id : entry.type,
+      ),
+    ).toEqual(["section", "built", "section", "unbuilt"]);
+
+    expect(result.entries[0]).toMatchObject({ section: "built", count: 1 });
+    expect(result.entries[2]).toMatchObject({ section: "unbuilt", count: 1 });
+  });
+
   it("ignores unknown folder refs without crashing", async () => {
     const store = await getMockStore();
 
@@ -23,7 +64,7 @@ describe("selectDecksDisplayList", () => {
       },
     });
 
-    const result = selectDecksDisplayList(store.getState());
+    const result = withoutSections(selectDecksDisplayList(store.getState()));
 
     expect(result.entries).toHaveLength(1);
     expect(result.entries[0]).toMatchObject({
@@ -60,7 +101,7 @@ describe("selectDecksDisplayList", () => {
       },
     });
 
-    const result = selectDecksDisplayList(store.getState());
+    const result = withoutSections(selectDecksDisplayList(store.getState()));
 
     expect(result.entries).toHaveLength(2);
     expect(result.entries[0]).toMatchObject({

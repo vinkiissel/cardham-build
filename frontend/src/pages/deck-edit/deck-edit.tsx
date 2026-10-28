@@ -1,3 +1,4 @@
+import { STATIC_API } from "@/utils/constants";
 import type { Card } from "@arkham-build/shared";
 import {
   BookOpenTextIcon,
@@ -254,15 +255,17 @@ function DeckEditInner() {
                   <LayoutListIcon />
                   <span>{t("deck_edit.tab_card_list")}</span>
                 </TabsTrigger>
-                <TabsTrigger
-                  hotkey="r"
-                  onTabChange={setCurrentTool}
-                  tooltip={t("deck_edit.tab_recommendations")}
-                  value="recommendations"
-                >
-                  <WandSparklesIcon />
-                  <span>{t("deck_edit.tab_recommendations")}</span>
-                </TabsTrigger>
+                {!STATIC_API && (
+                  <TabsTrigger
+                    hotkey="r"
+                    onTabChange={setCurrentTool}
+                    tooltip={t("deck_edit.tab_recommendations")}
+                    value="recommendations"
+                  >
+                    <WandSparklesIcon />
+                    <span>{t("deck_edit.tab_recommendations")}</span>
+                  </TabsTrigger>
+                )}
                 <TabsTrigger
                   hotkey="n"
                   onTabChange={setCurrentTool}

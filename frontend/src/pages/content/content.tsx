@@ -1,3 +1,4 @@
+import { withBasePath } from "@/utils/base-path";
 import type { Scenario } from "@arkham-build/shared";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -84,7 +85,7 @@ function CampaignCard({ entry }: { entry: CampaignListEntry }) {
     <MediaCard
       banner={{
         alt: `${displayPackName(campaign)} backdrop`,
-        src: `/assets/content/banners/${campaign.code}.avif`,
+        src: withBasePath(`/assets/content/banners/${campaign.code}.avif`),
         constraints: contentBannerConstraints(campaign.code),
       }}
       classNames={{ content: css["campaign-content"] }}
@@ -131,7 +132,7 @@ function StandaloneCard({ group }: { group: StandaloneScenarioGroup }) {
     <MediaCard
       banner={{
         alt: `${displayPackName(cycle)} backdrop`,
-        src: `/assets/content/banners/${cycle.code}.avif`,
+        src: withBasePath(`/assets/content/banners/${cycle.code}.avif`),
         constraints: contentBannerConstraints(cycle.code),
       }}
       title={

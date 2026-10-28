@@ -1,3 +1,4 @@
+import { withBasePath } from "@/utils/base-path";
 import { useLayoutEffect } from "react";
 import { Card } from "@/components/card/card";
 import { Masthead } from "@/components/masthead";
@@ -99,7 +100,7 @@ function Investigator2026Reveal() {
           <figure className={css["card"]} key={card.card.code}>
             <div className={css["card-media"]}>
               <img
-                src={`/assets/blog/${fileName}.avif`}
+                src={withBasePath(`/assets/blog/${fileName}.avif`)}
                 loading={i === 0 ? "eager" : "lazy"}
                 alt={card.card.real_name}
               />

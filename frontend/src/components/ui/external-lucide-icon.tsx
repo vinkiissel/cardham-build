@@ -1,3 +1,4 @@
+import { withBasePath } from "@/utils/base-path";
 import { cx } from "@/utils/cx";
 
 type Props = {
@@ -9,7 +10,7 @@ export function ExternalLucideIcon(props: Props) {
   const { className, url } = props;
 
   const src = url.startsWith("lucide://")
-    ? `/lucide/icons/${url.replace("lucide://", "")}.svg`
+    ? withBasePath(`/lucide/icons/${url.replace("lucide://", "")}.svg`)
     : url;
 
   return (

@@ -1,3 +1,4 @@
+import { withBasePath } from "@/utils/base-path";
 import type { Settings as SettingsState } from "@arkham-build/shared";
 import { BarChart3Icon } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -156,7 +157,9 @@ export function CollectionSettings(props: Props) {
                   key={cycle.code}
                   banner={{
                     alt: `Cycle ${displayPackName(cycle)} backdrop`,
-                    src: `/assets/content/banners/${cycle.code}.avif`,
+                    src: withBasePath(
+                      `/assets/content/banners/${cycle.code}.avif`,
+                    ),
                     constraints: contentBannerConstraints(cycle.code),
                   }}
                   title={

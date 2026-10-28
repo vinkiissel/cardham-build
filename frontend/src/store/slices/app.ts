@@ -16,7 +16,9 @@ import {
   upgradeAdapter,
   uploadAdapter,
 } from "../lib/deck-crud";
+import { BUILT_DECK_META_KEY } from "../lib/card-usage";
 import { formatDeckImport } from "../lib/deck-io";
+import { decodeDeckMeta } from "../lib/deck-meta";
 import { buildCacheFromDecks } from "../lib/fan-made-content";
 import { mappedByCode, mappedById } from "../lib/metadata-utils";
 import { isSyncedStorageProvider } from "../lib/sync";
@@ -380,6 +382,39 @@ export const createAppSlice: StateCreator<StoreState, [], [], AppSlice> = (
     await dehydrate(get(), "app", "edits");
 
     return deck;
+  },
+  async setDeckBuilt(client, deckId, built) {
+    const state = get();
+
+    const deck = state.data.decks[deckId];
+    assert(deck, `Deck ${deckId} does not exist.`);
+
+    const meta = decodeDeckMeta(deck);
+
+    if (built) {
+      meta[BUILT_DECK_META_KEY] = "true";
+    } else {
+      delete meta[BUILT_DECK_META_KEY];
+    }
+
+    const { deck: nextDeck } = updateAdapter.formatPropertyPatch(
+      state,
+      deckId,
+      { meta: JSON.stringify(meta) },
+    );
+
+    const canonicalDeck = await updateAdapter.persist(
+      client,
+      get,
+      set,
+      nextDeck,
+      state.sync.decks.items[deckId]?.version,
+    );
+
+    // Pending deck edits are kept: they are merged on top of the stored meta when saved.
+    updateAdapter.transition(set, canonicalDeck, undefined);
+
+    await dehydrate(get(), "app");
   },
   async saveDeck(client, deckId) {
     const state = get();

@@ -1,10 +1,13 @@
 /* oxlint-disable react/no-danger -- trusted content. */
 import html from "@/assets/rules.html?raw";
+import { withBasePath } from "@/utils/base-path";
 import { parseCardTextHtml } from "@/utils/card-utils";
 import { RulesDocument } from "./rules-document";
 
 export function RulesChapterOne() {
-  const [toc, rules] = html.split("<!-- BEGIN RULES -->");
+  const [toc, rules] = html
+    .replaceAll('src="/assets/', `src="${withBasePath("/assets/")}`)
+    .split("<!-- BEGIN RULES -->");
 
   return (
     <RulesDocument

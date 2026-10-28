@@ -1,3 +1,4 @@
+import { withBasePath } from "@/utils/base-path";
 import type { FanMadeProject } from "@arkham-build/shared";
 import { useMutation } from "@tanstack/react-query";
 import { LoaderCircleIcon } from "lucide-react";
@@ -84,7 +85,7 @@ function Core2026Reveal() {
         </div>
         <div className={css["header-backdrop"]}>
           <img
-            src="/assets/blog/core_2026_full.avif"
+            src={withBasePath("/assets/blog/core_2026_full.avif")}
             alt="Banner for the Core 2026 reveal"
           />
         </div>

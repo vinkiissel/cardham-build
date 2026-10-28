@@ -1,7 +1,7 @@
+import { STATIC_API } from "@/utils/constants";
 import { CloudDownloadIcon, LoaderCircleIcon } from "lucide-react";
 import { useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
-import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import {
@@ -48,7 +48,7 @@ export function DeckCollectionImport() {
       <PopoverTrigger asChild>
         <Button
           data-testid="import-trigger"
-          tooltip={t("deck_collection.import_arkhamdb")}
+          tooltip={t("deck_collection.import_deck")}
         >
           <CloudDownloadIcon />
         </Button>
@@ -56,18 +56,19 @@ export function DeckCollectionImport() {
       <PopoverContent>
         <form className={css["import"]} onSubmit={onFormSubmit}>
           <header>
-            <h3>{t("deck_collection.import_arkhamdb")}</h3>
+            <h3>{t("deck_collection.import_deck")}</h3>
           </header>
           <Field
             full
             helpText={
               <Trans
-                i18nKey="deck_collection.import_arkhamdb_help"
+                i18nKey={
+                  STATIC_API
+                    ? "deck_collection.import_help_static"
+                    : "deck_collection.import_help"
+                }
                 t={t}
-                components={{
-                  strong: <strong />,
-                  settings_link: <Link href="/settings" />,
-                }}
+                components={{ strong: <strong /> }}
               />
             }
           >
@@ -79,7 +80,11 @@ export function DeckCollectionImport() {
               data-1p-ignore=""
               data-testid="import-input"
               name="deck-id"
-              placeholder="https://arkhamdb.com/deck/view/123456"
+              placeholder={
+                STATIC_API
+                  ? t("deck_collection.import_placeholder_static")
+                  : t("deck_collection.import_placeholder")
+              }
               required
               type="text"
             />

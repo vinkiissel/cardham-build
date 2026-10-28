@@ -183,6 +183,13 @@
       "placeholder": "Add global tag...",
       "title": "Tags"
     },
+    "card_usage": {
+      "available": "{{available}} of {{owned}} copies available",
+      "overcommitted_one": "This deck uses {{count}} copy more than you have available.",
+      "overcommitted_other": "This deck uses {{count}} copies more than you have available.",
+      "title": "In use",
+      "used_in": "In use in built decks:"
+    },
     "card_view": {
       "actions": {
         "open_on_arkhamdb": "Open on ArkhamDB",
@@ -994,6 +1001,8 @@
     "deck_collection": {
       "archive": "Archive",
       "arkhamdb_response_time_banner": "The ArkhamDB API is currently slow. If you are having trouble, upload decks directly to arkham.build instead.",
+      "built_toggle_error": "Failed to update deck: {{error}}",
+      "built_toggle_help": "Cards in built decks are taken out of your card pool and shown as in use in other decks.",
       "collection_empty": "Collection empty",
       "connect_arkhamdb": "Connect to ArkhamDB",
       "count": "{{count}} decks",
@@ -1007,10 +1016,17 @@
       "import_arkhamdb": "Import from ArkhamDB",
       "import_arkhamdb_help": "Enter a public ArkhamDB deck id, deck url or deck guide url. Decks will be <strong>copied</strong> over and deck history and upgrade state will not be imported. If you are meaning to sync your ArkhamDB decks with this app, <settings_link>connect your arkhamdb account.</settings_link>",
       "import_error": "Failed to import deck: {{error}}",
+      "import_deck": "Import deck",
+      "import_help": "Paste a <strong>build code</strong> or link shared from this site, or a public ArkhamDB deck id or URL. Decks are <strong>copied</strong> into this browser.",
+      "import_help_static": "Paste a <strong>build code</strong> or link shared from this site. Decks are <strong>copied</strong> into this browser.",
       "import_json": "Import from JSON files",
       "import_loading": "Importing deck...",
+      "import_placeholder": "Build code or ArkhamDB deck URL",
+      "import_placeholder_static": "Build code or link",
       "more_filters": "More filters",
       "search_placeholder": "Search decks...",
+      "section_built": "Built",
+      "section_unbuilt": "Unbuilt",
       "sorting": {
         "alphabetical_asc": "Alphabetical (A -> Z)",
         "alphabetical_desc": "Alphabetical (Z -> A)",
@@ -1247,6 +1263,14 @@
         "save_upgrade_short": "Upgrade",
         "upload": "Upload to {{provider}}",
         "upload_account": "Upload"
+      },
+      "build_code": {
+        "code_copied": "Build code copied to clipboard.",
+        "copy_code": "Copy build code",
+        "copy_error": "Failed to copy build code: {{error}}",
+        "copy_link": "Copy link",
+        "description": "Share a build code or link to rebuild this deck in another browser.",
+        "link_copied": "Link copied to clipboard."
       },
       "checklist": "Checklist",
       "discounts": {
@@ -1781,6 +1805,9 @@
         "chapter": "Chapter {{number}}",
         "new_format": "New format",
         "old_format": "Old format",
+        "proxies": "Single cards",
+        "proxies_add": "Add single cards",
+        "proxies_help": "Add cards you own outside of the packs below, e.g. proxies or promo cards. Copies count for every printing of the card with the same text.",
         "show_all_cards_owned": "Show all cards as owned",
         "show_all_cards_owned_help": "When this is checked, the collection settings below are ignored when checking card ownership in card and deck lists.",
         "show_previews": "Show preview cards",

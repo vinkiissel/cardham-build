@@ -8,6 +8,7 @@ import { and, or } from "@/utils/fp";
 import { fuzzyMatch, prepareNeedle } from "@/utils/fuzzy";
 import i18n from "@/utils/i18n";
 import type { LookupTables } from "../lib/lookup-tables.types";
+import { isBuiltDeck } from "../lib/card-usage";
 import { deckTags } from "../lib/resolve-deck";
 import type { DeckSummary, ResolvedDeck } from "../lib/types";
 import type { StoreState } from "../slices";
@@ -422,12 +423,13 @@ const selectDecksSortingFunc = createSelector(
   },
 );
 
-type DecklistEntry = DeckEntry | FolderEntry;
+type DecklistEntry = DeckEntry | FolderEntry | SectionEntry;
 
 type DeckEntry = {
   deck: DeckSummary;
   depth: number;
   folder?: Folder;
+  section: DeckSection;
   type: "deck";
 };
 
@@ -436,8 +438,29 @@ type FolderEntry = {
   depth: number;
   expanded: boolean;
   folder: Folder;
+  section: DeckSection;
   type: "folder";
 };
+
+export type DeckSection = "built" | "unbuilt";
+
+type SectionEntry = {
+  count: number;
+  depth: number;
+  folder?: undefined;
+  section: DeckSection;
+  type: "section";
+};
+
+const selectBuiltDeckIds = createSelector(
+  (state: StoreState) => state.data.decks,
+  (decks) =>
+    new Set(
+      Object.values(decks)
+        .filter((deck) => isBuiltDeck(deck))
+        .map((deck) => String(deck.id)),
+    ),
+);
 
 export const selectDecksDisplayList = createSelector(
   selectDecksFiltered,
@@ -446,7 +469,16 @@ export const selectDecksDisplayList = createSelector(
   (state: StoreState) => state.data.folders,
   (state: StoreState) => state.data.deckFolders,
   (state: StoreState) => state.deckCollection.expandedFolders,
-  (filteredDecks, sorting, collator, folders, deckFolders, expandedFolders) => {
+  selectBuiltDeckIds,
+  (
+    filteredDecks,
+    sorting,
+    collator,
+    folders,
+    deckFolders,
+    expandedFolders,
+    builtDeckIds,
+  ) => {
     const resolvedFolders: Record<string, Folder> = Object.values(
       deckFolders,
     ).includes(ARCHIVE_FOLDER_ID)
@@ -456,8 +488,6 @@ export const selectDecksDisplayList = createSelector(
         }
       : folders;
     const folderHierarchy: Record<string, string[]> = {};
-    const decksByFolderId: Record<string, DeckSummary[]> = {};
-    const uncategorizedDecks: DeckSummary[] = [];
 
     for (const folder of Object.values(resolvedFolders)) {
       const parentId = folder.parent_id;
@@ -468,67 +498,104 @@ export const selectDecksDisplayList = createSelector(
       }
     }
 
-    for (const deck of filteredDecks.decks) {
-      const folderId = deckFolders[deck.id];
-      const folder = folderId ? resolvedFolders[folderId] : undefined;
-
-      if (folder) {
-        decksByFolderId[folder.id] ??= [];
-        decksByFolderId[folder.id].push(deck);
-      } else {
-        uncategorizedDecks.push(deck);
-      }
-    }
-
-    const sorted: DecklistEntry[] = [];
-
     const rootFolders = Object.values(resolvedFolders)
       .filter(
         (folder) => !folder.parent_id || !resolvedFolders[folder.parent_id],
       )
       .sort((a, b) => collator.compare(a.name, b.name));
 
-    const traverse = (folder: Folder, depth: number) => {
-      const expanded = expandedFolders[folder.id] ?? false;
-      const decksInFolder = decksByFolderId[folder.id] ?? [];
-      const childFolders = (folderHierarchy[folder.id] ?? [])
-        .map((id) => resolvedFolders[id])
-        .filter((childFolder): childFolder is Folder => childFolder != null)
-        .sort((a, b) => collator.compare(a.name, b.name));
+    const builtDecks: DeckSummary[] = [];
+    const unbuiltDecks: DeckSummary[] = [];
 
-      sorted.push({
-        count: decksInFolder.length,
-        expanded,
-        folder,
-        depth,
-        type: "folder",
-      });
+    for (const deck of filteredDecks.decks) {
+      if (builtDeckIds.has(String(deck.id))) {
+        builtDecks.push(deck);
+      } else {
+        unbuiltDecks.push(deck);
+      }
+    }
 
-      for (const childFolder of childFolders) {
-        traverse(childFolder, depth + 1);
+    const sorted: DecklistEntry[] = [];
+
+    // Built decks are listed before unbuilt decks. Folders are repeated in both sections,
+    // but the built section only shows folders that contain built decks.
+    const appendSection = (
+      section: DeckSection,
+      decks: DeckSummary[],
+      includeEmptyFolders: boolean,
+    ) => {
+      const decksByFolderId: Record<string, DeckSummary[]> = {};
+      const uncategorizedDecks: DeckSummary[] = [];
+
+      for (const deck of decks) {
+        const folderId = deckFolders[deck.id];
+        const folder = folderId ? resolvedFolders[folderId] : undefined;
+
+        if (folder) {
+          decksByFolderId[folder.id] ??= [];
+          decksByFolderId[folder.id].push(deck);
+        } else {
+          uncategorizedDecks.push(deck);
+        }
       }
 
-      if (!expanded) {
-        return;
-      }
+      const childFoldersOf = (folder: Folder) =>
+        (folderHierarchy[folder.id] ?? [])
+          .map((id) => resolvedFolders[id])
+          .filter((childFolder): childFolder is Folder => childFolder != null)
+          .sort((a, b) => collator.compare(a.name, b.name));
 
-      for (const deck of [...decksInFolder].sort(sorting)) {
+      const hasDecks = (folder: Folder): boolean =>
+        !!decksByFolderId[folder.id]?.length ||
+        childFoldersOf(folder).some(hasDecks);
+
+      sorted.push({ count: decks.length, depth: 0, section, type: "section" });
+
+      const traverse = (folder: Folder, depth: number) => {
+        if (!includeEmptyFolders && !hasDecks(folder)) return;
+
+        const expanded = expandedFolders[folder.id] ?? false;
+        const decksInFolder = decksByFolderId[folder.id] ?? [];
+
         sorted.push({
-          deck,
-          depth: depth + 1,
+          count: decksInFolder.length,
+          expanded,
           folder,
-          type: "deck",
+          depth,
+          section,
+          type: "folder",
         });
+
+        for (const childFolder of childFoldersOf(folder)) {
+          traverse(childFolder, depth + 1);
+        }
+
+        if (!expanded) {
+          return;
+        }
+
+        for (const deck of [...decksInFolder].sort(sorting)) {
+          sorted.push({
+            deck,
+            depth: depth + 1,
+            folder,
+            section,
+            type: "deck",
+          });
+        }
+      };
+
+      for (const folder of rootFolders) {
+        traverse(folder, 0);
+      }
+
+      for (const deck of uncategorizedDecks.sort(sorting)) {
+        sorted.push({ deck, depth: 0, section, type: "deck" });
       }
     };
 
-    for (const folder of rootFolders) {
-      traverse(folder, 0);
-    }
-
-    for (const deck of uncategorizedDecks.sort(sorting)) {
-      sorted.push({ deck, depth: 0, type: "deck" });
-    }
+    appendSection("built", builtDecks, false);
+    appendSection("unbuilt", unbuiltDecks, true);
 
     return {
       entries: sorted,

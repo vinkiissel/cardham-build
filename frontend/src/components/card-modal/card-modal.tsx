@@ -1,3 +1,4 @@
+import { STATIC_API } from "@/utils/constants";
 import { ACCOUNT_PERMISSIONS, type Card as CardT } from "@arkham-build/shared";
 import {
   ArrowDownIcon,
@@ -50,6 +51,7 @@ import css from "./card-modal.module.css";
 import { AnnotationEdit } from "./card-modal-annotation-edit";
 import { CardModalAttachmentQuantities } from "./card-modal-attachment-quantities";
 import { CardModalQuantities } from "./card-modal-quantities";
+import { CardModalUsage } from "./card-modal-usage";
 import { CardPageLink } from "./card-page-link";
 import { InvestigatorTraitsChoice } from "./investigator-traits-choice";
 import { SpecialistAccess, SpecialistInvestigators } from "./specialist";
@@ -263,6 +265,7 @@ export function CardModal(props: Props) {
       {!cardWithRelations.card.preview &&
         !ctx.resolvedDeck &&
         settings.showCardModalPopularDecks &&
+        !STATIC_API &&
         cardWithRelations.card.official && (
           <div className={css["related"]}>
             <PopularDecks scope={cardWithRelations.card} />
@@ -354,6 +357,11 @@ export function CardModal(props: Props) {
               />
             )}
             <CardFavorite card={cardWithRelations.card} />
+            <CardModalUsage
+              card={cardWithRelations.card}
+              deckId={ctx.resolvedDeck?.id}
+              onCloseModal={onCloseModal}
+            />
             {hasSidebar && (
               <CardModalTags cardCode={cardWithRelations.card.code} sidebar />
             )}

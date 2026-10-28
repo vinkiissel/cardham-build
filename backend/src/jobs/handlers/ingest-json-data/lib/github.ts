@@ -56,10 +56,19 @@ function commitUrl(repo: string, ref: string) {
   return `https://api.github.com/repos/${repo}/commits/${encodeURIComponent(ref)}`;
 }
 
-function githubHeaders() {
-  return {
+function githubHeaders(): Record<string, string> {
+  const headers: Record<string, string> = {
     Accept: "application/vnd.github+json",
     "User-Agent": "arkham-build-ingest",
     "X-GitHub-Api-Version": "2022-11-28",
   };
+
+  // Optional, raises the GitHub API rate limit, e.g. in GitHub Actions.
+  const token = process.env["GITHUB_TOKEN"];
+
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  return headers;
 }

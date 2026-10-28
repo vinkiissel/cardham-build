@@ -6,6 +6,8 @@ import { defineConfig } from "vite";
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  // Path prefix when the app is not served from the root, e.g. "/arkham.build/" on GitHub Pages.
+  base: process.env.VITE_BASE_PATH || "/",
   build: {
     rolldownOptions: {
       output: {

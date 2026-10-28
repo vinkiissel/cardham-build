@@ -4,6 +4,7 @@ import { assert } from "@/utils/assert";
 import { ARCHIVE_FOLDER_ID } from "@/utils/constants";
 import i18n from "@/utils/i18n";
 import { duplicateAdapter } from "../lib/deck-crud";
+import { decodeDeckCode, isDeckCode } from "../lib/deck-code";
 import { formatDeckImport, parseDeckJson } from "../lib/deck-io";
 import { dehydrate } from "../persist";
 import type { HttpClient } from "../services/http-client";
@@ -29,6 +30,11 @@ export const createDataSlice: StateCreator<StoreState, [], [], DataSlice> = (
   ...getInitialDataState(),
 
   async importDeck(client, input) {
+    if (isDeckCode(input)) {
+      await get().importDeckCode(input);
+      return;
+    }
+
     const { data, type } = await importDeck(client, input);
 
     set((state) => {
@@ -79,6 +85,31 @@ export const createDataSlice: StateCreator<StoreState, [], [], DataSlice> = (
     }));
 
     await dehydrate(get(), "app");
+  },
+
+  async importDeckCode(code) {
+    const deck = await decodeDeckCode(code);
+    get().cacheFanMadeContent([deck]);
+
+    const formatted = formatDeckImport(get(), deck, "deck");
+
+    set((state) => ({
+      data: {
+        ...state.data,
+        decks: {
+          ...state.data.decks,
+          [formatted.id]: formatted,
+        },
+        history: {
+          ...state.data.history,
+          [formatted.id]: [],
+        },
+      },
+    }));
+
+    await dehydrate(get(), "app");
+
+    return formatted.id;
   },
 
   async importFromFiles(files) {

@@ -39,6 +39,8 @@ type DeckSummaryProps = {
   interactive?: boolean;
   /** Rendered in the same row as the deck tags. */
   metaPrefix?: React.ReactNode;
+  /** Replaces the default deck tags. */
+  tags?: React.ReactNode;
   showThumbnail?: boolean;
   showShadow?: boolean;
   showProviderTag?: boolean;
@@ -57,6 +59,7 @@ export function DeckSummary(props: DeckSummaryProps) {
     interactive,
     metaPrefix,
     showShadow,
+    tags,
     showThumbnail,
     showProviderTag,
     size,
@@ -138,16 +141,22 @@ export function DeckSummary(props: DeckSummaryProps) {
       </Link>
       <div className={css["meta"]}>
         {children}
-        <div className={css["meta-row"]}>
+        <div className={cx(css["meta-row"], tags && css["single-line"])}>
           {metaPrefix}
           <DeckTagsContainer>
-            {(type === "deck" || showProviderTag) && (
-              <ProviderTag deck={deck} />
+            {tags ?? (
+              <>
+                {(type === "deck" || showProviderTag) && (
+                  <ProviderTag deck={deck} />
+                )}
+                {type === "deck" && <FolderTag deckId={deck.id} />}
+                <LimitedCardPoolTag deck={deck} omitLegacy />
+                <SealedDeckTag deck={deck} />
+                <DeckTags
+                  tags={deckTags(deck, type === "decklist" ? ", " : " ")}
+                />
+              </>
             )}
-            {type === "deck" && <FolderTag deckId={deck.id} />}
-            <LimitedCardPoolTag deck={deck} omitLegacy />
-            <SealedDeckTag deck={deck} />
-            <DeckTags tags={deckTags(deck, type === "decklist" ? ", " : " ")} />
           </DeckTagsContainer>
         </div>
       </div>

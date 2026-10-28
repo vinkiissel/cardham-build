@@ -1,0 +1,12 @@
+.row {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.select,
+.input {
+  flex: 1 1 auto;
+  min-width: 0;
+}

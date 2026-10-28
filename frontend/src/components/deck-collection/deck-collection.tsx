@@ -1,5 +1,11 @@
 import { type DeckId, isArkhamDBIdentity } from "@arkham-build/shared";
-import { EllipsisIcon, PlusIcon, Trash2Icon, UploadIcon } from "lucide-react";
+import {
+  DownloadIcon,
+  EllipsisIcon,
+  PlusIcon,
+  Trash2Icon,
+  UploadIcon,
+} from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Virtuoso } from "react-virtuoso";
@@ -12,7 +18,9 @@ import {
   DeckSummary,
   DeckSummaryQuickActions,
 } from "@/components/deck-summary/deck-summary";
+import { BuiltDeckConflicts } from "@/components/deck-summary/built-deck-conflicts";
 import { BuiltToggle } from "@/components/deck-summary/built-toggle";
+import { DeckPackTags } from "@/components/deck-summary/deck-pack-tags";
 import { Button } from "@/components/ui/button";
 import {
   DropdownButton,
@@ -32,12 +40,16 @@ import {
 } from "@/queries/mutations/decks";
 import { useStore } from "@/store";
 import type { DeckSummary as DeckSummaryType } from "@/store/lib/types";
+import { isBuiltDeck } from "@/store/lib/card-usage";
+import { createDeckBundle } from "@/store/lib/deck-bundle";
+import { selectBuiltDeckConflicts } from "@/store/selectors/card-usage";
 import { selectDecksDisplayList } from "@/store/selectors/deck-collection";
 import { ACCOUNTS_ENABLED, ARKHAMDB_WARNING_VISIBLE } from "@/utils/constants";
 import {
   createAuthRedirectPath,
   getCurrentLocalPath,
 } from "@/utils/navigation-returns";
+import { download } from "@/utils/download";
 import { useHotkey } from "@/utils/use-hotkey";
 import { Notice } from "../ui/notice";
 import css from "./deck-collection.module.css";
@@ -80,7 +92,19 @@ export function DeckCollection() {
     });
 
     try {
-      await importDecksMutation.mutateAsync(files);
+      const { imported, skipped } =
+        await importDecksMutation.mutateAsync(files);
+
+      toast.show({
+        children: skipped
+          ? t("deck_collection.import_summary_skipped", {
+              count: imported,
+              skipped,
+            })
+          : t("deck_collection.import_summary", { count: imported }),
+        duration: 5000,
+        variant: "success",
+      });
     } catch (error) {
       toast.show({
         children: t("deck_collection.import_error", {
@@ -118,6 +142,15 @@ export function DeckCollection() {
         });
       }
     }
+  };
+
+  const onExportAll = () => {
+    const bundle = createDeckBundle(useStore.getState().data);
+    const date = new Date().toISOString().slice(0, 10);
+
+    download(JSON.stringify(bundle), `decks-${date}.json`, "application/json");
+
+    setPopoverOpen(false);
   };
 
   const deleteDeck = useDeleteDeck();
@@ -171,6 +204,14 @@ export function DeckCollection() {
                     <UploadIcon /> {t("deck_collection.import_json")}
                   </Button>
                 </DropdownItem>
+                <DropdownButton
+                  data-testid="collection-export-all"
+                  onClick={onExportAll}
+                  full
+                  variant="bare"
+                >
+                  <DownloadIcon /> {t("deck_collection.export_all")}
+                </DropdownButton>
                 <DropdownButton
                   data-testid="collection-delete-all"
                   onClick={onDeleteAll}
@@ -308,6 +349,15 @@ function DeckCollectionDeckEntry({
     (state) => state.sync.decks.items[deck.id]?.status === "conflict",
   );
 
+  const built = useStore((state) => {
+    const stored = state.data.decks[deck.id];
+    return stored ? isBuiltDeck(stored) : false;
+  });
+
+  const conflicts = useStore(
+    (state) => selectBuiltDeckConflicts(state)[deck.id],
+  );
+
   return (
     <div
       className={css["deck"]}
@@ -322,7 +372,30 @@ function DeckCollectionDeckEntry({
         showThumbnail
         size="sm"
         validation={deck.problem}
-        metaPrefix={<BuiltToggle deckId={deck.id} />}
+        className={
+          built
+            ? conflicts?.length
+              ? css["built-conflict"]
+              : css["built-ok"]
+            : undefined
+        }
+        data-built-status={
+          built ? (conflicts?.length ? "conflict" : "ok") : undefined
+        }
+        tags={
+          <DeckPackTags
+            deckId={deck.id}
+            max={built && conflicts?.length ? 4 : 6}
+          />
+        }
+        metaPrefix={
+          <>
+            <BuiltToggle deckId={deck.id} />
+            {built && !!conflicts?.length && (
+              <BuiltDeckConflicts conflicts={conflicts} />
+            )}
+          </>
+        }
       >
         <DeckSummaryQuickActions
           deck={deck}

@@ -33,7 +33,13 @@ export type DataSlice = {
   importDeck(client: HttpClient, code: string): Promise<void>;
   importDecks(decks: Deck[]): Promise<void>;
   importDeckCode(code: string): Promise<Id>;
-  importFromFiles(files: readonly File[]): Promise<void>;
+  /**
+   * Imports single deck JSON files and deck bundles (see `createDeckBundle`).
+   * Decks in bundles that already exist are skipped.
+   */
+  importFromFiles(
+    files: readonly File[],
+  ): Promise<{ imported: number; skipped: number }>;
   removeDeckFromFolder(client: HttpClient, deckId: Id): Promise<void>;
   setDeckFolder(
     client: HttpClient | undefined,

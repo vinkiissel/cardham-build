@@ -136,3 +136,15 @@
 .section-count {
   font-weight: 400;
 }
+
+/* Built decks: green when the card pool covers them, yellow when cards are overcommitted.
+   Needs to win over the investigator color and the hover styles of the deck summary. */
+.deck .built-ok {
+  border-color: var(--color-success) !important;
+  box-shadow: inset 3px 0 0 var(--color-success);
+}
+
+.deck .built-conflict {
+  border-color: var(--color-warning) !important;
+  box-shadow: inset 3px 0 0 var(--color-warning);
+}

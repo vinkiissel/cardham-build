@@ -4,6 +4,11 @@ import { assert } from "@/utils/assert";
 import { ARCHIVE_FOLDER_ID } from "@/utils/constants";
 import i18n from "@/utils/i18n";
 import { duplicateAdapter } from "../lib/deck-crud";
+import {
+  type DeckBundle,
+  isDeckBundle,
+  mergeDeckBundle,
+} from "../lib/deck-bundle";
 import { decodeDeckCode, isDeckCode } from "../lib/deck-code";
 import { formatDeckImport, parseDeckJson } from "../lib/deck-io";
 import { dehydrate } from "../persist";
@@ -113,8 +118,28 @@ export const createDataSlice: StateCreator<StoreState, [], [], DataSlice> = (
   },
 
   async importFromFiles(files) {
-    const decks = await Promise.all(files.map(parseDeckFile));
-    await get().importDecks(decks);
+    const parsed = await Promise.all(files.map(parseImportFile));
+
+    const decks = parsed.filter((item): item is Deck => !isDeckBundle(item));
+    const bundles = parsed.filter(isDeckBundle);
+
+    if (decks.length) await get().importDecks(decks);
+
+    let imported = decks.length;
+    let skipped = 0;
+
+    for (const bundle of bundles) {
+      get().cacheFanMadeContent(bundle.decks);
+      const result = mergeDeckBundle(get().data, bundle);
+
+      set({ data: result.data });
+      imported += result.imported;
+      skipped += result.skipped;
+    }
+
+    if (bundles.length) await dehydrate(get(), "app");
+
+    return { imported, skipped };
   },
 
   async duplicateDeck(id, options) {
@@ -212,9 +237,12 @@ async function persistFolderState(
   await state.saveFolders(client);
 }
 
-async function parseDeckFile(file: File): Promise<Deck> {
+async function parseImportFile(file: File): Promise<Deck | DeckBundle> {
   try {
-    return parseDeckJson(await file.text());
+    const text = await file.text();
+    const json: unknown = JSON.parse(text.replace(/^\uFEFF/, ""));
+    if (isDeckBundle(json)) return json;
+    return parseDeckJson(text);
   } catch (error) {
     const reason = error instanceof Error ? error.message : "Unknown error";
     throw new Error(`Could not import "${file.name}": ${reason}`, {

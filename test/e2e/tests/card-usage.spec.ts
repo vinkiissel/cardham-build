@@ -108,4 +108,37 @@ test.describe("card usage", () => {
       locateCardInSlots(page, "01037").getByTestId("card-usage"),
     ).toHaveText("0/1");
   });
+
+  test("built decks are highlighted and list cards missing from the collection", async ({
+    page,
+  }) => {
+    for (const name of [BUILT_DECK, OTHER_DECK]) {
+      const deck = page.getByTestId(`collection-deck-${name}`);
+      await deck.getByTestId("deck-built-toggle").click();
+      await expect(deck.getByTestId("deck-built-toggle")).toHaveAttribute(
+        "aria-checked",
+        "true",
+      );
+    }
+
+    // All cards count as owned until the collection is configured.
+    const builtDeck = page
+      .getByTestId(`collection-deck-${BUILT_DECK}`)
+      .getByTestId("collection-deck");
+    await expect(builtDeck).toHaveAttribute("data-built-status", "ok");
+    await expect(builtDeck.getByTestId("built-deck-conflicts")).toHaveCount(0);
+
+    await page.getByTestId("masthead-settings").click();
+    await page.getByTestId("tab-collection").click();
+    await page.getByTestId("settings-show-all").click();
+    await page.getByTestId("settings-save").click();
+    await page.getByTestId("settings-back").click();
+
+    await expect(builtDeck).toHaveAttribute("data-built-status", "conflict");
+
+    await builtDeck.getByTestId("built-deck-conflicts").click();
+    const list = page.getByTestId("built-deck-conflicts-list");
+    await expect(list).toContainText("Working a Hunch");
+    await expect(list).toContainText(OTHER_DECK);
+  });
 });

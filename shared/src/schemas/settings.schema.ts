@@ -7,6 +7,15 @@ export const CollectionSchema = z
   .refine((value) => Object.keys(value).length <= COLLECTION_KEY_LIMIT);
 export type Collection = z.infer<typeof CollectionSchema>;
 
+const ProxiesSchema = z.record(z.string(), z.number().int().min(0));
+
+export const CollectionProfileSchema = z.object({
+  name: z.string(),
+  collection: CollectionSchema,
+  proxies: ProxiesSchema.optional(),
+});
+export type CollectionProfile = z.infer<typeof CollectionProfileSchema>;
+
 const GroupingTypeSchema = z.enum([
   "base_upgrades",
   "cost",
@@ -95,7 +104,10 @@ export const SettingsSchema = z.object({
   }),
   locale: z.string(),
   // Single cards added to the collection outside of packs, e.g. proxies. Keyed by card code.
-  proxies: z.record(z.string(), z.number().int().min(0)).optional(),
+  proxies: ProxiesSchema.optional(),
+  // Named collections. The active one is mirrored in `collection` and `proxies`.
+  collectionProfiles: z.record(z.string(), CollectionProfileSchema).optional(),
+  activeCollectionProfile: z.string().optional(),
   notesEditor: z.object({
     defaultFormat: z.enum([
       "paragraph",

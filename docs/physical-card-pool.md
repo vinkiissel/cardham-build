@@ -9,6 +9,8 @@ Your card pool is everything you own:
 - **Packs** – Settings → Collection, as in upstream arkham.build. Uncheck "Show all cards as owned" so the app uses your collection.
 - **Single cards** – Settings → Collection → Single cards. Add proxies, promo cards or anything else you own outside of packs, with a quantity per card.
 
+**Several collections** – the dropdown at the top of Settings → Collection selects the collection in use, e.g. your own and a friend's. The buttons next to it create, rename and delete collections. Save the settings to apply a change.
+
 Printings of a card share one pool when they have the same name and text, no matter which product they come from. For example, Working a Hunch from the Core Set, the Revised Core Set and the 2026 Core Set are one pool. Reprints whose text changed, like Perception in the 2026 Core Set, have their own pool.
 
 ## Built decks
@@ -23,6 +25,10 @@ Cards in a built deck are taken out of the pool:
 | Extra decks, e.g. Joe Diamond's hunch deck | Signature cards and signature weaknesses |
 | Basic weaknesses | Bonded cards, e.g. Soothing Melody |
 | | The "Random basic weakness" placeholder |
+
+Built decks have a green edge when your collection covers all their cards, and a yellow edge with a warning when built decks together use more copies of some cards than you own. Hover or click the warning to see those cards and the decks that use them.
+
+Instead of deck tags, the deck list shows the packs a deck needs, as icons. Hover an icon for the pack name; packs missing from your collection are outlined in yellow. For cards printed in several products, a pack from your collection is shown.
 
 Only the latest version of a deck counts. When you upgrade a built deck, cards that you swap out return to the pool.
 
@@ -41,6 +47,10 @@ Hover the badge to see which built decks use the card. The card detail window li
 ## Sharing decks
 
 On a deck's page, **Copy build code** and **Copy link** share the deck without an account. Opening the link, or pasting the code into **Import deck** next to the deck list, imports a copy in any browser. Shared decks always start as unbuilt.
+
+## Moving all decks to another browser
+
+In the deck list menu (**⋯**), **Export all decks** saves one file with every deck, including upgrade history, folders and the built flag. **Import decks from JSON files** in the other browser adds them. Decks that already exist there, by id or with the same contents, are skipped.
 
 ## Where the data lives
 

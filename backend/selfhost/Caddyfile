@@ -1,0 +1,5 @@
+# Requests to API_DOMAIN are proxied to the API container.
+# Caddy requests and renews the HTTPS certificate automatically.
+{$API_DOMAIN} {
+	reverse_proxy api:3000
+}

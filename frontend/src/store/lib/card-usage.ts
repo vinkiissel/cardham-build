@@ -29,6 +29,18 @@ export function isBuiltDeck(deck: Deck) {
 }
 
 /**
+ * Returns the deck without the built flag. Used for copies of a deck, e.g. imports,
+ * duplicates and exports, which must not take cards from the owner's card pool.
+ */
+export function withoutBuiltFlag<T extends Deck>(deck: T): T {
+  const meta = decodeDeckMeta(deck);
+  if (!(BUILT_DECK_META_KEY in meta)) return deck;
+
+  delete meta[BUILT_DECK_META_KEY];
+  return { ...deck, meta: JSON.stringify(meta) };
+}
+
+/**
  * Returns a code shared by all printings of a card that have the same text.
  * Cards reprinted with changed text (e.g. Perception in the 2026 core set) are
  * not marked as duplicates in the card data and keep their own code.

@@ -59,6 +59,8 @@ export type AppSlice = {
     properties: Partial<Deck>,
   ): Promise<Deck>;
 
+  setDeckBuilt(client: HttpClient, deckId: Id, built: boolean): Promise<void>;
+
   upgradeDeck(client: HttpClient, payload: DeckUpgradePayload): Promise<Deck>;
 
   deleteAllDecks(): Promise<void>;

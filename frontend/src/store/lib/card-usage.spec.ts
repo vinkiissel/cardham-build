@@ -9,6 +9,7 @@ import {
   computeCardUsage,
   isBuiltDeck,
   usedElsewhere,
+  withoutBuiltFlag,
 } from "./card-usage";
 
 function deck(
@@ -49,6 +50,15 @@ describe("card usage", () => {
     expect(isBuiltDeck(deck("a", {}))).toBe(true);
     expect(isBuiltDeck(deck("a", {}, {}))).toBe(false);
     expect(isBuiltDeck(deck("a", {}, { built: "false" }))).toBe(false);
+  });
+
+  it("removes the built flag from deck copies", () => {
+    const copy = withoutBuiltFlag(
+      deck("a", {}, { built: "true", extra_deck: "01090" }),
+    );
+
+    expect(isBuiltDeck(copy)).toBe(false);
+    expect(JSON.parse(copy.meta)).toEqual({ extra_deck: "01090" });
   });
 
   it("only counts built decks", () => {

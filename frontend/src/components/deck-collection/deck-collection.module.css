@@ -116,3 +116,28 @@
     width: 100%;
   }
 }
+
+.section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.125rem;
+  border-bottom: 1px solid var(--palette-2);
+  color: var(--palette-4);
+  font-family: var(--font-family-ui);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.section-count {
+  font-weight: 400;
+}
+
+.built-toggle {
+  margin-bottom: 0.25rem;
+  margin-left: -0.25rem;
+}

@@ -37,6 +37,17 @@ export function useUpdateDeckPropertiesMutation() {
   });
 }
 
+export function useSetDeckBuiltMutation() {
+  const client = useHttpClient();
+  const setDeckBuilt = useStore((state) => state.setDeckBuilt);
+
+  return useMutation({
+    mutationKey: ["decks", "set-built"],
+    mutationFn: (payload: { deckId: Id; built: boolean }) =>
+      setDeckBuilt(client, payload.deckId, payload.built),
+  });
+}
+
 export function useUploadDeckToProviderMutation() {
   const client = useHttpClient();
   const uploadDeckToProvider = useStore((state) => state.uploadDeckToProvider);

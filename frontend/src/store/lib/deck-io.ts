@@ -24,6 +24,7 @@ import {
   selectStaticBuildQlInterpreter,
 } from "../selectors/shared";
 import { getInitialSettings } from "../slices/settings";
+import { withoutBuiltFlag } from "./card-usage";
 import {
   type DeckGrouping,
   groupDeckCards,
@@ -82,7 +83,7 @@ export function formatDeckImport(
   );
 
   return {
-    ...(cleanedDeck as Deck),
+    ...withoutBuiltFlag(cleanedDeck as Deck),
     id: randomId(),
     problem,
     date_creation: now,
@@ -103,7 +104,7 @@ export function formatDeckShare(
   _deck: Deck,
   previousDeck: Id | null = null,
 ): Deck {
-  const deck = structuredClone(_deck);
+  const deck = withoutBuiltFlag(structuredClone(_deck));
   deck.previous_deck = previousDeck;
   deck.source = undefined;
   deck.next_deck = null;

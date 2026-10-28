@@ -12,6 +12,7 @@ import {
   DeckSummary,
   DeckSummaryQuickActions,
 } from "@/components/deck-summary/deck-summary";
+import { BuiltToggle } from "@/components/deck-summary/built-toggle";
 import { Button } from "@/components/ui/button";
 import {
   DropdownButton,
@@ -218,7 +219,11 @@ export function DeckCollection() {
             skipAnimationFrameInResizeObserver
             itemContent={(_, entry) => (
               <div
-                key={entry.type === "deck" ? entry.deck.id : entry.folder.id}
+                key={
+                  entry.type === "section"
+                    ? entry.section
+                    : `${entry.section}-${entry.type === "deck" ? entry.deck.id : entry.folder.id}`
+                }
                 className={css["collection-entry"]}
                 style={
                   {
@@ -227,6 +232,15 @@ export function DeckCollection() {
                   } as React.CSSProperties
                 }
               >
+                {entry.type === "section" && (
+                  <h3
+                    className={css["section"]}
+                    data-testid={`collection-section-${entry.section}`}
+                  >
+                    {t(`deck_collection.section_${entry.section}`)}
+                    <span className={css["section-count"]}>{entry.count}</span>
+                  </h3>
+                )}
                 {entry.type === "folder" && (
                   <DeckCollectionFolder
                     count={entry.count}
@@ -307,6 +321,7 @@ function DeckCollectionDeckEntry({
         size="sm"
         validation={deck.problem}
       >
+        <BuiltToggle className={css["built-toggle"]} deckId={deck.id} />
         <DeckSummaryQuickActions
           deck={deck}
           onDeleteDeck={deleteDeck}

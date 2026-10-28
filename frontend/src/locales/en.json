@@ -994,6 +994,8 @@
     "deck_collection": {
       "archive": "Archive",
       "arkhamdb_response_time_banner": "The ArkhamDB API is currently slow. If you are having trouble, upload decks directly to arkham.build instead.",
+      "built_toggle_error": "Failed to update deck: {{error}}",
+      "built_toggle_help": "Cards in built decks are taken out of your card pool and shown as in use in other decks.",
       "collection_empty": "Collection empty",
       "connect_arkhamdb": "Connect to ArkhamDB",
       "count": "{{count}} decks",
@@ -1011,6 +1013,8 @@
       "import_loading": "Importing deck...",
       "more_filters": "More filters",
       "search_placeholder": "Search decks...",
+      "section_built": "Built",
+      "section_unbuilt": "Unbuilt",
       "sorting": {
         "alphabetical_asc": "Alphabetical (A -> Z)",
         "alphabetical_desc": "Alphabetical (Z -> A)",

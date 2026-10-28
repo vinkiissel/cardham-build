@@ -37,6 +37,7 @@ import type { DeckUpgradePayload } from "../slices/app.types";
 import type { UndoEntry } from "../slices/data.types";
 import { normalizeArkhamDbDeck } from "./arkhamdb-decks";
 import { applyCardChanges } from "./card-edits";
+import { withoutBuiltFlag } from "./card-usage";
 import { applyDeckEdits, getChangeRecord } from "./deck-edits";
 import { makeDeck, makeDeckCopy } from "./deck-factory";
 import { mapValidationToProblem } from "./deck-io";
@@ -582,7 +583,7 @@ export const duplicateAdapter = {
       ? applyDeckEdits(deck, state.deckEdits[deckId], metadata, true)
       : deck;
 
-    return clearHiddenSlots(makeDeckCopy(sourceDeck));
+    return clearHiddenSlots(makeDeckCopy(withoutBuiltFlag(sourceDeck)));
   },
 };
 

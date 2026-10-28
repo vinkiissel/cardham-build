@@ -7,7 +7,7 @@ import { isEmpty } from "@/utils/is-empty";
 import { time, timeEnd } from "@/utils/time";
 import { fields } from "../lib/buildql/fields";
 import { Interpreter } from "../lib/buildql/interpreter";
-import { ownedCardCount } from "../lib/card-ownership";
+import { ownedCardCount, proxyKey } from "../lib/card-ownership";
 import { addProjectToMetadata, cloneMetadata } from "../lib/fan-made-content";
 import { createLookupTables } from "../lib/lookup-tables";
 import type { LookupTables } from "../lib/lookup-tables.types";
@@ -100,6 +100,11 @@ export const selectCollection = createSelector(
         Object.entries(metadata.packs)
           .filter(([, pack]) => !official(pack))
           .map((pack) => [pack[0], 1]),
+      ),
+      ...Object.fromEntries(
+        Object.entries(settings.proxies ?? {})
+          .filter(([, quantity]) => quantity > 0)
+          .map(([code, quantity]) => [proxyKey(code), quantity]),
       ),
     };
 

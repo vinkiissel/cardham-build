@@ -98,6 +98,8 @@ export type DeckMeta = {
   alternate_back?: string | null;
   alternate_front?: string | null;
   buildql_deck_options_override?: string | null;
+  /** "true" when the deck is physically built and its cards are taken out of the card pool. */
+  built?: string | null;
   card_pool?: string | null;
   deck_card_tags?: string | null;
   deck_size_selected?: string | null;

@@ -6,6 +6,16 @@ import {
 import type { Metadata } from "../slices/metadata.types";
 import type { LookupTables } from "./lookup-tables.types";
 
+/**
+ * Prefix for collection keys that track single proxied cards instead of packs.
+ * Proxies are stored in `settings.proxies` and merged into the collection by `selectCollection`.
+ */
+export const PROXY_KEY_PREFIX = "proxy:";
+
+export function proxyKey(code: string) {
+  return `${PROXY_KEY_PREFIX}${code}`;
+}
+
 export type CardOwnershipOptions = {
   card: Card;
   collection: Collection;
@@ -58,9 +68,13 @@ export function ownedCardCount(options: CardOwnershipOptions) {
     quantityOwned += card.quantity;
   }
 
+  quantityOwned += collection[proxyKey(card.code)] ?? 0;
+
   if (!duplicates) return quantityOwned;
 
   for (const code of Object.keys(duplicates ?? {})) {
+    quantityOwned += collection[proxyKey(code)] ?? 0;
+
     const duplicate = metadata.cards[code];
 
     if (!duplicate) {

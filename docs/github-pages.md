@@ -34,7 +34,7 @@ Without a server and without accounts:
 | Sharing decks with build codes and links | Importing decks from ArkhamDB |
 | JSON export and import | Deck scans, customization sheet downloads |
 
-Decks, settings and the collection are stored in each browser. **Settings → Data export** saves a backup file, but the app has no button to restore it yet. To move decks to another browser, use build codes or the JSON export and import.
+Decks, settings and the collection are stored in each browser. To move all decks to another browser, use **Export all decks** in the deck list menu and import the file there; decks that already exist are skipped. Settings, including collections, are not part of that file.
 
 ## Sharing decks
 

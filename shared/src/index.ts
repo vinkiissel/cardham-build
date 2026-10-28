@@ -322,6 +322,8 @@ export {
 export {
   COLLECTION_KEY_LIMIT,
   type Collection,
+  type CollectionProfile,
+  CollectionProfileSchema,
   CollectionSchema,
   type DecklistConfig,
   DecklistConfigSchema,

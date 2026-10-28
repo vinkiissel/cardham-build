@@ -19,9 +19,13 @@ test.describe("deck collection", () => {
       "30 (37)",
     );
 
+    // The deck list shows the packs needed for a deck instead of its tags.
     await expect(
       deckNode.getByTestId("deck-tags").getByRole("listitem"),
-    ).toHaveText(["Device", "solo", "multiplayer", "theme", "beginner"]);
+    ).toHaveCount(6);
+    await expect(deckNode.getByTestId("deck-pack-core")).toBeVisible();
+    // 11 packs: the first 5 as icons, the rest as a count.
+    await expect(deckNode.getByTestId("deck-pack-more")).toHaveText("+6");
 
     await expect(deckNode.getByTestId("deck-summary-title")).toContainText(
       "Kōhaku, Fifty Shades of Blurse|FHV Intro|Deck Guide",

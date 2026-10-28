@@ -373,3 +373,49 @@ test.describe("settings", () => {
     await expect(page.getByTestId("listcard-03059")).toBeVisible();
   });
 });
+
+test.describe("collection profiles", () => {
+  test("switch between named collections", async ({ page }) => {
+    await page.goto("/settings?tab=collection");
+
+    const pack = page.locator("#collection-dwl-dwlp");
+    const profiles = page.getByTestId("settings-collection-profiles");
+
+    await page.getByText("The Dunwich Legacy Investigator Expansion").click();
+    await expect(pack).toBeChecked();
+
+    await profiles.getByTestId("collection-profile-create").click();
+    await profiles.getByTestId("collection-profile-name").fill("Friend");
+    await profiles.getByTestId("collection-profile-save").click();
+
+    // A new collection starts empty.
+    await expect(profiles.getByTestId("collection-profile-select")).toHaveValue(
+      /.+/,
+    );
+    await expect(pack).not.toBeChecked();
+
+    await profiles
+      .getByTestId("collection-profile-select")
+      .selectOption({ label: "My collection" });
+    await expect(pack).toBeChecked();
+
+    await page.getByTestId("settings-save").click();
+    await page.reload();
+
+    await expect(
+      profiles.getByTestId("collection-profile-select").locator("option"),
+    ).toHaveText(["Friend", "My collection"]);
+    await expect(pack).toBeChecked();
+
+    await profiles
+      .getByTestId("collection-profile-select")
+      .selectOption({ label: "Friend" });
+    page.once("dialog", (dialog) => dialog.accept());
+    await profiles.getByTestId("collection-profile-delete").click();
+
+    await expect(
+      profiles.getByTestId("collection-profile-select").locator("option"),
+    ).toHaveText(["My collection"]);
+    await expect(pack).toBeChecked();
+  });
+});

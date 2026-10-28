@@ -32,6 +32,7 @@ import { FontSizeSetting } from "./font-size";
 import { ListSettings } from "./list-settings";
 import { LocaleSetting } from "./locale-setting";
 import { MetadataRefresh } from "./metadata-refresh";
+import { CollectionProfilesSetting } from "./collection-profiles";
 import { ProxiesSetting } from "./proxies";
 import { Section } from "./section";
 import css from "./settings.module.css";
@@ -228,6 +229,10 @@ function ApplicationSettings({
       <TabsContent value="collection">
         <PortaledSaveButton target={headerActionPortalTarget} />
         <Section title={t("settings.collection.title")}>
+          <CollectionProfilesSetting
+            settings={settings}
+            setSettings={setSettings}
+          />
           <ShowPreviewsSetting settings={settings} setSettings={setSettings} />
           <ShowAllCardsSetting settings={settings} setSettings={setSettings} />
           <ProxiesSetting settings={settings} setSettings={setSettings} />

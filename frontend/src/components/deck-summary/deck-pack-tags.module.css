@@ -1,0 +1,18 @@
+.pack {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25em;
+}
+
+.icon {
+  flex: 0 0 auto;
+  width: 1em;
+  height: 1em;
+  font-size: 1em;
+}
+
+.missing {
+  outline: 1px solid var(--color-warning);
+  color: var(--color-warning);
+}

@@ -322,8 +322,8 @@ function DeckCollectionDeckEntry({
         showThumbnail
         size="sm"
         validation={deck.problem}
+        metaPrefix={<BuiltToggle deckId={deck.id} />}
       >
-        <BuiltToggle className={css["built-toggle"]} deckId={deck.id} />
         <DeckSummaryQuickActions
           deck={deck}
           onDeleteDeck={deleteDeck}

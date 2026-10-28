@@ -37,6 +37,8 @@ type DeckSummaryProps = {
   elevation?: "normal" | "elevated";
   hasSyncConflict?: boolean;
   interactive?: boolean;
+  /** Rendered in the same row as the deck tags. */
+  metaPrefix?: React.ReactNode;
   showThumbnail?: boolean;
   showShadow?: boolean;
   showProviderTag?: boolean;
@@ -53,6 +55,7 @@ export function DeckSummary(props: DeckSummaryProps) {
     elevation,
     hasSyncConflict,
     interactive,
+    metaPrefix,
     showShadow,
     showThumbnail,
     showProviderTag,
@@ -135,13 +138,18 @@ export function DeckSummary(props: DeckSummaryProps) {
       </Link>
       <div className={css["meta"]}>
         {children}
-        <DeckTagsContainer>
-          {(type === "deck" || showProviderTag) && <ProviderTag deck={deck} />}
-          {type === "deck" && <FolderTag deckId={deck.id} />}
-          <LimitedCardPoolTag deck={deck} omitLegacy />
-          <SealedDeckTag deck={deck} />
-          <DeckTags tags={deckTags(deck, type === "decklist" ? ", " : " ")} />
-        </DeckTagsContainer>
+        <div className={css["meta-row"]}>
+          {metaPrefix}
+          <DeckTagsContainer>
+            {(type === "deck" || showProviderTag) && (
+              <ProviderTag deck={deck} />
+            )}
+            {type === "deck" && <FolderTag deckId={deck.id} />}
+            <LimitedCardPoolTag deck={deck} omitLegacy />
+            <SealedDeckTag deck={deck} />
+            <DeckTags tags={deckTags(deck, type === "decklist" ? ", " : " ")} />
+          </DeckTagsContainer>
+        </div>
       </div>
     </article>
   );

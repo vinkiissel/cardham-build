@@ -91,6 +91,7 @@ test.describe("card usage", () => {
     await page.getByTestId("settings-show-all").click();
 
     const proxies = page.getByTestId("settings-proxies");
+    await proxies.getByTestId("combobox-input").click();
     await proxies.getByTestId("combobox-input").fill("Working a Hunch");
     await page.getByTestId("combobox-menu-item-01037").click();
     await expect(proxies.getByTestId("listcard-01037")).toBeVisible();

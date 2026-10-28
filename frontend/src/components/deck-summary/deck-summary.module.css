@@ -116,6 +116,13 @@
   overflow: hidden;
 }
 
+.meta-row {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  gap: 0.25rem;
+}
+
 .summary.sm .meta {
   padding: 0.375rem;
 }

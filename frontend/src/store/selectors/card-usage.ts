@@ -37,7 +37,7 @@ export const selectCardAvailability = createSelector(
   (usage, metadata, lookupTables, collection, decks) =>
     (card: Card, excludeDeckId?: DeckId): CardAvailability => {
       const entry = usedElsewhere(
-        usage[canonicalCardCode(card.code, lookupTables)],
+        usage[canonicalCardCode(card.code, metadata, lookupTables)],
         excludeDeckId,
       );
 

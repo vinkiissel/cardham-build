@@ -1,0 +1,11 @@
+.proxies {
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 0.5rem;
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}

@@ -183,6 +183,13 @@
       "placeholder": "Add global tag...",
       "title": "Tags"
     },
+    "card_usage": {
+      "available": "{{available}} of {{owned}} copies available",
+      "overcommitted_one": "This deck uses {{count}} copy more than you have available.",
+      "overcommitted_other": "This deck uses {{count}} copies more than you have available.",
+      "title": "In use",
+      "used_in": "In use in built decks:"
+    },
     "card_view": {
       "actions": {
         "open_on_arkhamdb": "Open on ArkhamDB",
@@ -1785,6 +1792,9 @@
         "chapter": "Chapter {{number}}",
         "new_format": "New format",
         "old_format": "Old format",
+        "proxies": "Single cards",
+        "proxies_add": "Add single cards",
+        "proxies_help": "Add cards you own outside of the packs below, e.g. proxies or promo cards. Copies count for every printing of the card with the same text.",
         "show_all_cards_owned": "Show all cards as owned",
         "show_all_cards_owned_help": "When this is checked, the collection settings below are ignored when checking card ownership in card and deck lists.",
         "show_previews": "Show preview cards",

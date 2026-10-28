@@ -1,6 +1,7 @@
 import { type Deck, SPECIAL_CARD_CODES } from "@arkham-build/shared";
 import { REGEX_BONDED } from "@/utils/constants";
 import type { Metadata } from "../slices/metadata.types";
+import { cardPoolCodes } from "./card-ownership";
 import { decodeDeckMeta } from "./deck-meta";
 import type { LookupTables } from "./lookup-tables.types";
 import { decodeExtraSlots } from "./slots";
@@ -41,21 +42,15 @@ export function withoutBuiltFlag<T extends Deck>(deck: T): T {
 }
 
 /**
- * Returns a code shared by all printings of a card that have the same text.
- * Cards reprinted with changed text (e.g. Perception in the 2026 core set) are
- * not marked as duplicates in the card data and keep their own code.
+ * Returns a code shared by all printings of a card that use the same physical card pool.
+ * See `cardPoolCodes` for which printings share a pool.
  */
-export function canonicalCardCode(code: string, lookupTables: LookupTables) {
-  const duplicates = lookupTables.relations.duplicates[code];
-  if (!duplicates) return code;
-
-  let canonical = code;
-
-  for (const duplicate of Object.keys(duplicates)) {
-    if (duplicate < canonical) canonical = duplicate;
-  }
-
-  return canonical;
+export function canonicalCardCode(
+  code: string,
+  metadata: Metadata,
+  lookupTables: LookupTables,
+) {
+  return cardPoolCodes(code, metadata, lookupTables)[0];
 }
 
 /**
@@ -90,7 +85,7 @@ export function deckCardUsage(
   for (const slots of slotSources) {
     for (const [code, quantity] of Object.entries(slots)) {
       if (!quantity || !usesPhysicalCopy(code, metadata)) continue;
-      const canonical = canonicalCardCode(code, lookupTables);
+      const canonical = canonicalCardCode(code, metadata, lookupTables);
       usage[canonical] = (usage[canonical] ?? 0) + quantity;
     }
   }

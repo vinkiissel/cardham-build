@@ -28,6 +28,7 @@ import { CardHealth } from "../card-health";
 import { CardIcon } from "../card-icon";
 import { CardName } from "../card-name";
 import { CardThumbnail } from "../card-thumbnail";
+import { CardUsageIndicator } from "../card-usage-indicator";
 import { MulticlassIcons } from "../icons/multiclass-icons";
 import { SkillIcons } from "../skill-icons/skill-icons";
 import { SkillIconsInvestigator } from "../skill-icons/skill-icons-investigator";
@@ -243,6 +244,7 @@ export function ListCardInner(props: Props) {
                       slotAfter={
                         <>
                           {renderCardNameExtra?.(card, quantity)}
+                          <CardUsageIndicator card={card} quantity={quantity} />
                           {ownedCount != null &&
                             card.code !==
                               SPECIAL_CARD_CODES.RANDOM_BASIC_WEAKNESS &&

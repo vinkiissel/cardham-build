@@ -4,6 +4,7 @@ import type { StoreApi } from "zustand";
 import { getMockStore } from "@/test/get-mock-store";
 import { selectLookupTables, selectMetadata } from "../selectors/shared";
 import type { StoreState } from "../slices";
+import { ownedCardCount, proxyKey } from "./card-ownership";
 import {
   canonicalCardCode,
   computeCardUsage,
@@ -71,8 +72,14 @@ describe("card usage", () => {
   });
 
   it("shares a pool between identical reprints", () => {
-    const lookupTables = selectLookupTables(store.getState());
-    expect(canonicalCardCode("01590", lookupTables)).toEqual("01090");
+    const state = store.getState();
+    expect(
+      canonicalCardCode(
+        "01590",
+        selectMetadata(state),
+        selectLookupTables(state),
+      ),
+    ).toEqual("01090");
 
     const result = usage([
       deck("a", { "01090": 1 }),
@@ -80,6 +87,20 @@ describe("card usage", () => {
     ]);
 
     expect(result["01090"]).toEqual({ quantity: 3, decks: { a: 1, b: 2 } });
+  });
+
+  it("shares a pool with same-text reprints in newer products", () => {
+    // Working a Hunch: core, revised core and 2026 core set.
+    const result = usage([
+      deck("a", { "01037": 1 }),
+      deck("b", { "01537": 1 }),
+      deck("c", { "12038": 1 }),
+    ]);
+
+    expect(result["01037"]).toEqual({
+      quantity: 3,
+      decks: { a: 1, b: 1, c: 1 },
+    });
   });
 
   it("keeps reprints with changed text separate", () => {
@@ -133,6 +154,29 @@ describe("card usage", () => {
     ]);
 
     expect(Object.keys(result).sort()).toEqual(["01097", "05313"]);
+  });
+
+  it("counts owned copies across printings and proxies", () => {
+    const state = store.getState();
+    const metadata = selectMetadata(state);
+    const lookupTables = selectLookupTables(state);
+
+    const owned = (code: string, collection: Record<string, number>) =>
+      ownedCardCount({
+        card: metadata.cards[code],
+        collection,
+        lookupTables,
+        metadata,
+      });
+
+    // Working a Hunch is owned through the 2026 core set.
+    expect(owned("01037", { core_2026: 1 })).toEqual(2);
+    expect(owned("12038", { core: 1 })).toEqual(1);
+    // Perception from the 2026 core set has changed text.
+    expect(owned("01090", { core_2026: 1 })).toEqual(0);
+    // Proxies count for every printing in the pool.
+    expect(owned("01037", { [proxyKey("12038")]: 1 })).toEqual(1);
+    expect(owned("01037", { core: 1, [proxyKey("01037")]: 2 })).toEqual(3);
   });
 
   it("excludes the deck being edited", () => {

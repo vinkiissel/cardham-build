@@ -32,6 +32,7 @@ import { FontSizeSetting } from "./font-size";
 import { ListSettings } from "./list-settings";
 import { LocaleSetting } from "./locale-setting";
 import { MetadataRefresh } from "./metadata-refresh";
+import { ProxiesSetting } from "./proxies";
 import { Section } from "./section";
 import css from "./settings.module.css";
 import { ShowAllCardsSetting } from "./show-all-cards";
@@ -229,6 +230,7 @@ function ApplicationSettings({
         <Section title={t("settings.collection.title")}>
           <ShowPreviewsSetting settings={settings} setSettings={setSettings} />
           <ShowAllCardsSetting settings={settings} setSettings={setSettings} />
+          <ProxiesSetting settings={settings} setSettings={setSettings} />
           <CollectionSettings settings={settings} setSettings={setSettings} />
         </Section>
       </TabsContent>

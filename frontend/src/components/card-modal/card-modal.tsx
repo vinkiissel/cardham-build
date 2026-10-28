@@ -50,6 +50,7 @@ import css from "./card-modal.module.css";
 import { AnnotationEdit } from "./card-modal-annotation-edit";
 import { CardModalAttachmentQuantities } from "./card-modal-attachment-quantities";
 import { CardModalQuantities } from "./card-modal-quantities";
+import { CardModalUsage } from "./card-modal-usage";
 import { CardPageLink } from "./card-page-link";
 import { InvestigatorTraitsChoice } from "./investigator-traits-choice";
 import { SpecialistAccess, SpecialistInvestigators } from "./specialist";
@@ -354,6 +355,11 @@ export function CardModal(props: Props) {
               />
             )}
             <CardFavorite card={cardWithRelations.card} />
+            <CardModalUsage
+              card={cardWithRelations.card}
+              deckId={ctx.resolvedDeck?.id}
+              onCloseModal={onCloseModal}
+            />
             {hasSidebar && (
               <CardModalTags cardCode={cardWithRelations.card.code} sidebar />
             )}

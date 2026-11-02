@@ -36,6 +36,8 @@ Copies of a deck are never built: imported decks, imported shared decks, duplica
 
 ## In-use highlighting
 
+Every card name in card lists has the icon of the pack the card comes from. For cards printed in several products, a pack from your collection is shown. With ownership tracking on, cards you don't own have the pack icon outlined in yellow. Hover the icon for the pack name.
+
 Cards used by other built decks stay visible and usable everywhere, but get a badge next to their name:
 
 - `1/3` – one of your three copies is still available.

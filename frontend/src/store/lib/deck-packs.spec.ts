@@ -5,7 +5,7 @@ import { getMockStore } from "@/test/get-mock-store";
 import { selectLookupTables, selectMetadata } from "../selectors/shared";
 import type { StoreState } from "../slices";
 import { proxyKey } from "./card-ownership";
-import { deckPacks } from "./deck-packs";
+import { cardPack, deckPacks } from "./deck-packs";
 
 describe("deckPacks", () => {
   let store: StoreApi<StoreState>;
@@ -50,5 +50,25 @@ describe("deckPacks", () => {
       { code: "core", owned: false },
       { code: "core_2026", owned: true },
     ]);
+  });
+
+  it("picks the pack for a single card", () => {
+    const state = store.getState();
+    const pack = (code: string, collection: Record<string, number>) =>
+      cardPack(
+        code,
+        selectMetadata(state),
+        selectLookupTables(state),
+        collection,
+      );
+
+    // Working a Hunch from the 2026 core set, owned through the original core set.
+    expect(pack("12038", {})).toEqual({ code: "core_2026", owned: false });
+    expect(pack("12038", { core: 1 })).toEqual({ code: "core", owned: true });
+    // Perception from the 2026 core set has changed text: the original core set does not count.
+    expect(pack("12093", { core: 1 })).toEqual({
+      code: "core_2026",
+      owned: false,
+    });
   });
 });

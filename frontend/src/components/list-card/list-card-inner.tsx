@@ -27,6 +27,7 @@ import { CardText } from "../card/card-text";
 import { CardHealth } from "../card-health";
 import { CardIcon } from "../card-icon";
 import { CardName } from "../card-name";
+import { CardPackIcon } from "../card-pack-icon";
 import { CardThumbnail } from "../card-thumbnail";
 import { CardUsageIndicator } from "../card-usage-indicator";
 import { MulticlassIcons } from "../icons/multiclass-icons";
@@ -244,6 +245,7 @@ export function ListCardInner(props: Props) {
                       slotAfter={
                         <>
                           {renderCardNameExtra?.(card, quantity)}
+                          <CardPackIcon card={card} />
                           <CardUsageIndicator card={card} quantity={quantity} />
                           {ownedCount != null &&
                             card.code !==

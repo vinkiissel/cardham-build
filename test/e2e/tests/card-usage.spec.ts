@@ -76,6 +76,11 @@ test.describe("card usage", () => {
     await expect(
       locateCardInSlots(page, "01037").getByTestId("card-usage"),
     ).toHaveCount(0);
+
+    // Card names show the pack the card comes from.
+    await expect(
+      locateCardInSlots(page, "01037").getByTestId("card-pack"),
+    ).toHaveAttribute("data-pack", "core");
   });
 
   test("single cards are added to the card pool", async ({ page }) => {

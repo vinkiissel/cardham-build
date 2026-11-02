@@ -6,7 +6,7 @@ import {
   computeCardUsage,
   usedElsewhere,
 } from "../lib/card-usage";
-import { type DeckPack, deckPacks } from "../lib/deck-packs";
+import { cardPack, type DeckPack, deckPacks } from "../lib/deck-packs";
 import type { StoreState } from "../slices";
 import {
   selectCanCheckOwnership,
@@ -144,4 +144,15 @@ export const selectDeckPacks = createSelector(
 
     return packs;
   },
+);
+
+/**
+ * The pack to get a card from, see `cardPack`.
+ */
+export const selectCardPack = createSelector(
+  selectMetadata,
+  selectLookupTables,
+  selectCollection,
+  (metadata, lookupTables, collection) => (code: string) =>
+    cardPack(code, metadata, lookupTables, collection),
 );

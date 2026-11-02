@@ -1,0 +1,22 @@
+.pack {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0.25em;
+  padding: 0 0.125em;
+  border-radius: var(--rounded);
+  color: var(--palette-4);
+  font-size: 0.85em;
+  font-weight: 400;
+  vertical-align: middle;
+
+  & img {
+    width: 1em;
+    height: 1em;
+  }
+}
+
+.missing {
+  outline: 1px solid var(--color-warning);
+  color: var(--color-warning);
+}

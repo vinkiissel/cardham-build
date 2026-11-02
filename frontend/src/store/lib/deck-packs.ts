@@ -41,23 +41,40 @@ export function deckPacks(
       continue;
     }
 
-    const printings = cardPoolCodes(code, metadata, lookupTables);
-    const candidates = printings.flatMap((printing) =>
-      printingPacks(printing, metadata),
-    );
-
-    const ownedPack = candidates.find((pack) => collection[pack]);
-    const hasProxy = printings.some(
-      (printing) => collection[proxyKey(printing)],
-    );
-
-    const pack = ownedPack ?? card.pack_code;
-    packs.set(pack, !!packs.get(pack) || !!ownedPack || hasProxy);
+    const pack = cardPack(code, metadata, lookupTables, collection);
+    if (pack) packs.set(pack.code, !!packs.get(pack.code) || pack.owned);
   }
 
   return [...packs.entries()]
     .map(([code, owned]) => ({ code, owned }))
     .sort((a, b) => packOrder(a.code, metadata) - packOrder(b.code, metadata));
+}
+
+/**
+ * The pack to get a card from. For cards printed in several products (same name and text),
+ * a pack from the collection is preferred, otherwise the card's own pack is used.
+ */
+export function cardPack(
+  code: string,
+  metadata: Metadata,
+  lookupTables: LookupTables,
+  collection: Collection,
+): DeckPack | undefined {
+  const card = metadata.cards[code];
+  if (!card) return undefined;
+
+  const printings = cardPoolCodes(code, metadata, lookupTables);
+  const candidates = printings.flatMap((printing) =>
+    printingPacks(printing, metadata),
+  );
+
+  const ownedPack = candidates.find((pack) => collection[pack]);
+  const hasProxy = printings.some((printing) => collection[proxyKey(printing)]);
+
+  return {
+    code: ownedPack ?? card.pack_code,
+    owned: !!ownedPack || hasProxy,
+  };
 }
 
 /**

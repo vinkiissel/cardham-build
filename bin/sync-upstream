@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+# Merges the latest upstream arkham.build into the current branch.
+#
+# GitHub workflow files are kept as they are in this repository: upstream workflows deploy to
+# upstream's servers, and the GitHub Actions token is not allowed to push workflow changes.
+#
+# Writes `status` (up-to-date, merged or conflict) and details to $GITHUB_OUTPUT when set.
+# Exits with 1 on merge conflicts, after aborting the merge.
+#
+# Usage: bin/sync-upstream
+set -euo pipefail
+
+upstream_url="${UPSTREAM_URL:-https://github.com/fspoettel/arkham.build.git}"
+upstream_branch="${UPSTREAM_BRANCH:-main}"
+output="${GITHUB_OUTPUT:-/dev/null}"
+
+git fetch --no-tags --quiet "${upstream_url}" "${upstream_branch}"
+upstream_sha="$(git rev-parse FETCH_HEAD)"
+upstream_short="$(git rev-parse --short FETCH_HEAD)"
+
+if git merge-base --is-ancestor "${upstream_sha}" HEAD; then
+  echo "Already up to date with upstream ${upstream_short}."
+  echo "status=up-to-date" >>"${output}"
+  exit 0
+fi
+
+commits="$(git rev-list --count "HEAD..${upstream_sha}")"
+echo "Merging ${commits} upstream commits (${upstream_short})."
+
+if ! git merge --no-commit --no-ff "${upstream_sha}" >/dev/null; then
+  conflicts="$(git diff --name-only --diff-filter=U)"
+  git merge --abort
+
+  echo "Merge conflicts in:"
+  echo "${conflicts}"
+
+  {
+    echo "status=conflict"
+    echo "commits=${commits}"
+    echo "upstream=${upstream_short}"
+    echo "conflicts<<EOF"
+    echo "${conflicts}"
+    echo "EOF"
+  } >>"${output}"
+
+  exit 1
+fi
+
+# Keep this repository's workflows: restore changed or deleted ones, drop new ones.
+skipped="$(git diff --cached --name-only HEAD -- .github/workflows)"
+
+if [[ -n "${skipped}" ]]; then
+  git diff --cached --name-only --diff-filter=A HEAD -- .github/workflows |
+    xargs -r git rm --cached --quiet -f --
+  git checkout HEAD -- .github/workflows
+  git clean --quiet -f -- .github/workflows
+
+  echo "Kept this repository's versions of:"
+  echo "${skipped}"
+fi
+
+git commit --quiet --no-edit -m "Merge upstream arkham.build (${upstream_short})"
+echo "Merged upstream ${upstream_short}."
+
+{
+  echo "status=merged"
+  echo "commits=${commits}"
+  echo "upstream=${upstream_short}"
+  echo "skipped<<EOF"
+  echo "${skipped}"
+  echo "EOF"
+} >>"${output}"

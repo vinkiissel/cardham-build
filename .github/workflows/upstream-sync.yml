@@ -1,0 +1,117 @@
+name: "[Fork] Sync with upstream arkham.build"
+
+# Merges the latest upstream arkham.build into a new branch and opens a pull request.
+# Run it manually from the Actions tab, e.g. after a new expansion. See docs/github-pages.md.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: upstream-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: Sync
+    if: github.repository != 'fspoettel/arkham.build'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      BRANCH: upstream-sync/${{ github.run_number }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.repository.default_branch }}
+          # Optional: GitHub refuses pushes with upstream commits that edited workflow files
+          # unless the token has the "workflow" scope. See docs/github-pages.md.
+          token: ${{ secrets.UPSTREAM_SYNC_TOKEN || github.token }}
+
+      - name: Merge upstream
+        id: merge
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch --create "$BRANCH"
+          bin/sync-upstream
+
+      - uses: actions/setup-node@v6
+        if: steps.merge.outputs.status == 'merged'
+        with:
+          cache: "npm"
+          node-version-file: "package.json"
+
+      - name: Check merged code
+        id: checks
+        if: steps.merge.outputs.status == 'merged'
+        continue-on-error: true
+        run: |
+          npm ci
+          npm run check --workspace frontend
+          npm run test --workspace frontend
+
+      - name: Open pull request
+        if: steps.merge.outputs.status == 'merged'
+        env:
+          COMMITS: ${{ steps.merge.outputs.commits }}
+          UPSTREAM: ${{ steps.merge.outputs.upstream }}
+          SKIPPED: ${{ steps.merge.outputs.skipped }}
+          CHECKS: ${{ steps.checks.outcome }}
+        run: |
+          git push --quiet origin "$BRANCH"
+
+          {
+            echo "Merges ${COMMITS} new commits from [upstream arkham.build](https://github.com/fspoettel/arkham.build/commits/main) (up to \`${UPSTREAM}\`)."
+            echo
+            if [ "$CHECKS" = "success" ]; then
+              echo "The frontend typecheck and unit tests pass on the merged code."
+            else
+              echo "**The frontend typecheck or unit tests fail on the merged code.** See the [workflow run](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}) before merging."
+            fi
+            if [ -n "$SKIPPED" ]; then
+              echo
+              echo "Upstream workflow changes were left out; this repository keeps its own versions of:"
+              echo
+              echo "$SKIPPED" | sed 's/^/- `/; s/$/`/'
+            fi
+            echo
+            echo "Merging this pull request redeploys the site."
+          } > pr-body.md
+
+          if ! gh pr create \
+            --base "${{ github.event.repository.default_branch }}" \
+            --head "$BRANCH" \
+            --title "Sync with upstream arkham.build (${UPSTREAM})" \
+            --body-file pr-body.md; then
+            echo "::warning::Could not open the pull request. Allow GitHub Actions to create pull requests under Settings → Actions → General, or open it from the pushed branch ${BRANCH}."
+          fi
+
+      - name: Summary
+        if: always()
+        env:
+          STATUS: ${{ steps.merge.outputs.status }}
+          CONFLICTS: ${{ steps.merge.outputs.conflicts }}
+          COMMITS: ${{ steps.merge.outputs.commits }}
+        run: |
+          case "$STATUS" in
+            up-to-date)
+              echo "Already up to date with upstream arkham.build. Nothing to merge." >> "$GITHUB_STEP_SUMMARY"
+              ;;
+            merged)
+              echo "Merged ${COMMITS} upstream commits into \`${BRANCH}\` and opened a pull request." >> "$GITHUB_STEP_SUMMARY"
+              ;;
+            conflict)
+              {
+                echo "Upstream has ${COMMITS} new commits that conflict with this repository's changes in:"
+                echo
+                echo "$CONFLICTS" | sed 's/^/- `/; s/$/`/'
+                echo
+                echo "Nothing was changed. Resolve the conflicts manually, e.g. with Claude Code (see docs/github-pages.md)."
+              } >> "$GITHUB_STEP_SUMMARY"
+              ;;
+          esac

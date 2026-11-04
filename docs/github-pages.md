@@ -50,7 +50,16 @@ New packs then appear under **Settings → Collection**.
 
 ## Updates from upstream arkham.build
 
-New products sometimes need code changes upstream, e.g. new deck building rules. To merge them into the fork:
+New products sometimes need code changes upstream, e.g. new icons or deck building rules. Card data alone updates every Monday (see above), but code changes have to be merged.
+
+To merge them, open **Actions → [Fork] Sync with upstream arkham.build → Run workflow**. The workflow:
+
+1. Merges the latest upstream `main` into a new branch, `upstream-sync/<run number>`.
+2. Keeps this repository's own GitHub workflow files; upstream's workflows deploy to upstream's servers.
+3. Runs the frontend typecheck and unit tests on the merged code.
+4. Opens a pull request that says whether the checks passed. Merging it redeploys the site.
+
+The run summary says when everything is already up to date, or which files conflict with this repository's changes. On conflicts nothing is changed; resolve them in a Claude Code session ("merge upstream arkham.build and resolve the conflicts"), or locally:
 
 ```sh
 git remote add upstream https://github.com/fspoettel/arkham.build.git   # once
@@ -61,7 +70,11 @@ npm run test --workspace frontend
 git push
 ```
 
-Pushing to `main` redeploys the site. The fork's own features live mostly in separate files (see `docs/physical-card-pool.md`) to keep merge conflicts rare.
+**One-time setup:** under **Settings → Actions → General → Workflow permissions**, enable **Allow GitHub Actions to create and approve pull requests**. Without it the branch is still pushed, and you open the pull request from it yourself.
+
+**If the push is refused** with "refusing to allow a GitHub App to create or update workflow": an upstream commit edited a workflow file, which the default token may not push. Create a fine-grained personal access token for this repository with **Contents**, **Pull requests** and **Workflows** read and write access, and save it as the repository secret `UPSTREAM_SYNC_TOKEN`. The workflow uses it when it exists.
+
+The script behind the workflow is `bin/sync-upstream`; it can also be run locally.
 
 ## Configuration
 
